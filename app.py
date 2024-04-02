@@ -9,11 +9,9 @@ app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI']='postgresql://postgres:1234@localhost/postgres'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SECRET_KEY'] = 'prdiagnosticsystem'
-
-db.init_app(app)
-
 app.config['DEBUG_TB_INTERCEPT_REDIRECTS'] = False  # Prevents the debug toolbar from intercepting redirects
 
+db.init_app(app)
 toolbar = DebugToolbarExtension(app)
 
 @app.route('/', methods=['GET'])
@@ -33,9 +31,10 @@ def login():
 
         # Store user information in the session
         session['UserID'] = user.id
-        session['Role'] = user.role
+        session['role'] = user.role
     
-        return redirect(url_for(f'{user.role}_home'))
+        app.logger.debug('Session contents: %s', session)
+        return redirect(url_for('home_page'))
     
     else:
         app.logger.debug('Login failed for user: %s', email)
@@ -47,17 +46,33 @@ def logout():
     session.clear()
     return redirect(url_for('login_page'))
 
-@app.route('/veterinarian_home', methods=['GET'])
-def veterinarian_home():
-    return render_template('veterinarian_home.html')
+@app.route('/home', methods=['GET'])
+def home_page():
+    app.logger.debug('Accessed home with session: %s', session)
+    
+    if session['role'] == 'veterinarian' or session['role'] == 'assistant':
+        return render_template('client_home.html')
+    elif session['role'] == 'admin':
+        return render_template('admin_home.html')
+    else:
+        # If role is not recognized, clear the session and redirect to login
+        session.clear()
+        return redirect(url_for('login_page'))
 
-@app.route('/assistant_home', methods=['GET'])
-def assistant_home():
-    return render_template('assistant_home.html')
+@app.route('/new_case', methods=['GET', 'POST'])
+def new_case():
+    if 'role' not in session:
+        return redirect(url_for('login_page'))
 
-@app.route('/admin_home', methods=['GET'])
-def admin_home():
-    return render_template('admin_home.html')
+    if request.method == 'GET':
+        if session['role'] == 'assistant':
+            return render_template('new_case_assistant.html')
+        elif session['role'] == 'veterinarian':
+            return render_template('new_case_veterinarian.html')
+    else:
+        # POST request handling for new case submission
+        # Fetch form data and save to the database
+        pass  # Implement the logic for form submission here
 
 if __name__ == '__main__':
     app.run(debug=True)
