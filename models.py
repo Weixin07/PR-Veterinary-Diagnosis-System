@@ -1,8 +1,9 @@
 from flask_sqlalchemy import SQLAlchemy
+from datetime import datetime
 
 db = SQLAlchemy()
 
-class User(db.Model):
+class UserData(db.Model):
     __tablename__ = 'User Data'  
     id = db.Column('UserID', db.Integer, primary_key=True)  
     email = db.Column('Email', db.String(255), unique=True, nullable=False)
@@ -13,3 +14,49 @@ class User(db.Model):
         self.email = email
         self.password = password
         self.role = role
+
+class SessionData(db.Model):
+    __tablename__ = 'Session Data'
+    SessionID = db.Column('SessionID', db.Integer, primary_key=True)
+    UserID = db.Column('UserID', db.Integer, db.ForeignKey('UserData.UserID'), nullable=False)
+    start = db.Column('Start', db.DateTime, default=datetime.timestamp)
+    end = db.Column('End', db.DateTime)
+    ip = db.Column('IP', db.String(255))  
+
+    def __init__(self, UserID, ip, start=None, end=None):
+        self.UserID = UserID
+        self.ip = ip
+        if start is not None:
+            self.start = start
+        if end is not None:
+            self.end = end
+            
+class QueryResult(db.Model):
+    __tablename__ = 'Query Results'
+    QResultID = db.Column('QResultID',db.Integer, primary_key=True)
+    UserID = db.Column('UserID', db.Integer, db.ForeignKey('UserData.id'), nullable=False)
+    Query = db.Column('Query', db.Text, nullable=False)
+
+    def __init__(self, UserID, Query):
+        self.UserID = UserID
+        self.Query = Query
+
+class MedicalCondition(db.Model):
+    __tablename__ = 'Medical Conditions'
+    MConditionID = db.Column('MConditionID', db.Integer, primary_key=True)
+    QResultID = db.Column('QResultID', db.Integer, db.ForeignKey('QueryResult.QResultID'), nullable=False)
+    justification = db.Column('Justification', db.Text)
+    TreatmentSuggestion = db.Column('TreatmentSuggestion', db.Text)
+
+    def __init__(self, QResultID, justification, TreatmentSuggestion):
+        self.QResultID = QResultID
+        self.justification = justification
+        self.TreatmentSuggestion = TreatmentSuggestion
+
+class Report(db.Model):
+    __tablename__ = 'Reports'
+    ReportID = db.Column('ReportID', db.Integer, primary_key=True)
+    QResultID = db.Column('QResultID', db.Integer, db.ForeignKey('QueryResult.QResultID'), nullable=False)
+
+    def __init__(self, QResultID):
+        self.QResultID = QResultID
