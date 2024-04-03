@@ -121,49 +121,54 @@ def edit_case(query_id):
             query_result.Query = f"additional details:{additional_info}"
 
         db.session.add(query_result)
+        db.session.commit()
 
-        '''
-        prompt_for_gpt = f"{query_result.Query}. Please provide three possible medical conditions based on the above symptoms, with justification and suggested treatment for each."
+        # Call the separate function for API interaction
+        process_query_with_gpt(query_id, query_result.Query)
 
-        try:
-            response = client.chat.completions.create(
-                model="gpt-4",
-                messages = prompt_for_gpt,
-                temperature=0.5,
-                max_tokens=256,
-                frequency_penalty=0.0,
-                n=1,
-                stop=None
-            )
-            api_response = response.choices[0].text.strip()
+        return redirect(url_for('home_page'))
+
+    else:
+        symptom_details = query_result.Query.split(', ') if query_result.Query else []
+        return render_template('edit_case.html', query=query_result, symptom_details=symptom_details)
+
+def process_query_with_gpt(query_id, query_text):
+    prompt_for_gpt = f"{query_text}. Please provide three possible medical conditions based on the above symptoms, with justification and suggested treatment for each."
+
+    try:
+        response = client.chat.completions.create(
+            model="gpt-4",
+            messages=[{"role": "system", "content": prompt_for_gpt}],
+            temperature=0.5,
+            max_tokens=256,
+            frequency_penalty=0.0,
+            n=1,
+            stop=None
+        )
+        
+        for choice in response.choices:
+            api_response = choice.message.content.strip()
+            print("API Response:", api_response)  # Print the generated text
+            
             conditions = api_response.split('\n')
-
             for condition in conditions:
                 parts = condition.split(':')
                 if len(parts) >= 2:
                     justification, treatment_suggestion = parts[0], ':'.join(parts[1:])
                     new_condition = MedicalCondition(
                         QResultID=query_id,
-                        Justification=justification.strip(),
+                        justification=justification.strip(),  # Corrected attribute name
                         TreatmentSuggestion=treatment_suggestion.strip()
                     )
                     db.session.add(new_condition)
-            db.session.commit()
-        except (OpenAIError, RateLimitError, BadRequestError, HTTPError, Timeout, RequestException) as e:
-            db.session.rollback()
-            app.logger.error(f'API call failed: {str(e)}')
-            return jsonify({"error": "API call failed", "message": str(e)}), 500
-        except Exception as e:
-            db.session.rollback()
-            app.logger.error(f'Unexpected error: {str(e)}')
-            return jsonify({"error": "Unexpected error", "message": str(e)}), 500
-        '''
+        
         db.session.commit()
-        return redirect(url_for('new_case'))
-
-    else:
-        symptom_details = query_result.Query.split(', ') if query_result.Query else []
-        return render_template('edit_case.html', query=query_result, symptom_details=symptom_details)
+    except (OpenAIError, RateLimitError, BadRequestError, HTTPError, Timeout, RequestException) as e:
+        db.session.rollback()
+        app.logger.error(f'API call failed: {str(e)}')
+    except Exception as e:
+        db.session.rollback()
+        app.logger.error(f'Unexpected error: {str(e)}')
 
 if __name__ == '__main__':
     app.run(debug=True)
