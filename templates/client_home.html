@@ -6,7 +6,11 @@
     <title>Veterinarian & Veterinarary Assistant Home</title>
 </head>
 <body>
-    <h1>Welcome, Veterinarian & Veterinarary Assistant!</h1>
-    <!-- Content specific to the Veterinarian role here -->
+    <h1>Welcome, {{ session['role'] | capitalize }}!</h1>
+    <nav>
+        <!-- The link for the new case page -->
+        <a href="{{ url_for('new_case') }}">New Case</a>
+        <!-- Add other links or buttons as needed -->
+    </nav>
 </body>
 </html>

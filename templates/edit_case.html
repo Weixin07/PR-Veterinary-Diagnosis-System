@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Edit Case - Veterinarian</title>
+</head>
+<body>
+    <h1>Edit Case</h1>
+    <form action="{{ url_for('edit_case', query_id=query.QResultID) }}" method="post">
+        <p>Current Symptoms:</p>
+        <p>{{ query.Query }}</p>
+        <textarea name="additional_info" placeholder="Add further details here" required></textarea>
+        <button type="submit">Update Case</button>
+    </form>
+</body>
+</html>

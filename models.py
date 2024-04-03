@@ -17,7 +17,7 @@ class UserData(db.Model):
 class QueryResult(db.Model):
     __tablename__ = 'Query Results'
     QResultID = db.Column('QResultID',db.Integer, primary_key=True)
-    UserID = db.Column('UserID', db.Integer, db.ForeignKey('UserData.id'), nullable=False)
+    UserID = db.Column('UserID', db.Integer, db.ForeignKey('User Data.UserID'), nullable=False)
     Query = db.Column('Query', db.Text, nullable=False)
 
     def __init__(self, UserID, Query):
@@ -27,7 +27,7 @@ class QueryResult(db.Model):
 class MedicalCondition(db.Model):
     __tablename__ = 'Medical Conditions'
     MConditionID = db.Column('MConditionID', db.Integer, primary_key=True)
-    QResultID = db.Column('QResultID', db.Integer, db.ForeignKey('QueryResult.QResultID'), nullable=False)
+    QResultID = db.Column('QResultID', db.Integer, db.ForeignKey('Query Result.QResultID'), nullable=False)
     justification = db.Column('Justification', db.Text)
     TreatmentSuggestion = db.Column('TreatmentSuggestion', db.Text)
 
@@ -39,7 +39,7 @@ class MedicalCondition(db.Model):
 class Report(db.Model):
     __tablename__ = 'Reports'
     ReportID = db.Column('ReportID', db.Integer, primary_key=True)
-    QResultID = db.Column('QResultID', db.Integer, db.ForeignKey('QueryResult.QResultID'), nullable=False)
+    QResultID = db.Column('QResultID', db.Integer, db.ForeignKey('Query Result.QResultID'), nullable=False)
 
     def __init__(self, QResultID):
         self.QResultID = QResultID

@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>New Case - Assistant</title>
+</head>
+<body>
+    <h1>New Case Entry by Assistant</h1>
+    <form action="{{ url_for('new_case') }}" method="post">
+        <!-- Add form fields for the checklist here -->
+        <textarea name="query" placeholder="Enter symptoms and checklist details" required></textarea>
+        <button type="submit">Submit Case</button>
+    </form>
+</body>
+</html>

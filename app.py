@@ -1,5 +1,5 @@
 from flask import Flask, render_template, request, redirect, url_for, session
-from models import UserData, db
+from models import QueryResult, UserData, db
 import logging
 from flask_debugtoolbar import DebugToolbarExtension
 
@@ -64,15 +64,44 @@ def new_case():
     if 'role' not in session:
         return redirect(url_for('login_page'))
 
-    if request.method == 'GET':
+    if request.method == 'POST' and session['role'] == 'assistant':
+        # POST request handling for new case submission by assistant
+        query_text = request.form['query'].strip()
+        new_query = QueryResult(UserID=session['UserID'], Query=query_text)
+        db.session.add(new_query)
+        db.session.commit()
+        app.logger.debug('New case added to QueryResults: %s', query_text)
+        return redirect(url_for('home_page'))
+
+    elif request.method == 'GET':
         if session['role'] == 'assistant':
             return render_template('new_case_assistant.html')
         elif session['role'] == 'veterinarian':
-            return render_template('new_case_veterinarian.html')
-    else:
-        # POST request handling for new case submission
-        # Fetch form data and save to the database
-        pass  # Implement the logic for form submission here
+            # Fetch all queries, not just those belonging to the current user
+            queries = QueryResult.query.all()
+            app.logger.debug('Number of queries found: %d', len(queries))
+            return render_template('new_case_veterinarian.html', queries=queries)
+
+    return redirect(url_for('home_page'))
+
+@app.route('/edit_case/<int:query_id>', methods=['GET', 'POST'])
+def edit_case(query_id):
+    if 'role' not in session or session['role'] != 'veterinarian':
+        return redirect(url_for('login_page'))
+    
+    query_result = QueryResult.query.get(query_id)
+    if request.method == 'POST':
+        # Here, we assume you have a form field for the additional details named 'additional_info'
+        additional_info = request.form['additional_info'].strip()
+        query_result.Query += "\n\nAdditional Details:\n" + additional_info
+        try:
+            db.session.commit()
+            app.logger.debug('Database commit successful')
+        except Exception as e:
+            app.logger.error('Error in database commit: %s', str(e))
+        return redirect(url_for('new_case'))
+    return render_template('edit_case.html', query=query_result)
+
 
 if __name__ == '__main__':
     app.run(debug=True)
