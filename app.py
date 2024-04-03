@@ -120,11 +120,17 @@ def edit_case(query_id):
         else:
             query_result.Query = f"additional details:{additional_info}"
 
+        query_result.UserID = session.get('UserID')
         db.session.add(query_result)
         db.session.commit()
 
         # Call the separate function for API interaction
         process_query_with_gpt(query_id, query_result.Query)
+
+        # After API call, create a new report entry
+        new_report = Report(QResultID=query_id)
+        db.session.add(new_report)
+        db.session.commit()
 
         return redirect(url_for('home_page'))
 
