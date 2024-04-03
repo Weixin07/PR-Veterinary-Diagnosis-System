@@ -7,8 +7,13 @@
 <body>
     <h1>New Case Entry by Assistant</h1>
     <form action="{{ url_for('new_case') }}" method="post">
-        <!-- Add form fields for the checklist here -->
-        <textarea name="query" placeholder="Enter symptoms and checklist details" required></textarea>
+        Activity: <input type="text" name="activity" required><br>
+        Breathing: <input type="text" name="breathing" required><br>
+        Eye Condition: <input type="text" name="eye_condition" required><br>
+        Discharge: <input type="text" name="discharge" required><br>
+        Diet & Weight: <input type="text" name="diet_weight" required><br>
+        Skin Coat Condition: <input type="text" name="skin_coat_condition" required><br>
+        Ear Condition: <input type="text" name="ear_condition" required><br>
         <button type="submit">Submit Case</button>
     </form>
 </body>

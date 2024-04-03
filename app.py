@@ -65,12 +65,26 @@ def new_case():
         return redirect(url_for('login_page'))
 
     if request.method == 'POST' and session['role'] == 'assistant':
-        # POST request handling for new case submission by assistant
-        query_text = request.form['query'].strip()
+         # Collect all form data into a single string
+        checklist_items = [
+            f"activity:{request.form['activity']}",
+            f"breathing:{request.form['breathing']}",
+            f"eye_condition:{request.form['eye_condition']}",
+            f"discharge:{request.form['discharge']}",
+            f"diet_weight:{request.form['diet_weight']}",
+            f"skin_coat_condition:{request.form['skin_coat_condition']}",
+            f"ear_condition:{request.form['ear_condition']}"
+        ]
+        query_text = ', '.join(checklist_items)
+        
         new_query = QueryResult(UserID=session['UserID'], Query=query_text)
         db.session.add(new_query)
-        db.session.commit()
-        app.logger.debug('New case added to QueryResults: %s', query_text)
+        try:
+            db.session.commit()
+            app.logger.debug('New case added to QueryResults: %s', query_text)
+        except Exception as e:
+            app.logger.error('Error in database commit: %s', str(e))
+        
         return redirect(url_for('home_page'))
 
     elif request.method == 'GET':
@@ -89,18 +103,28 @@ def edit_case(query_id):
     if 'role' not in session or session['role'] != 'veterinarian':
         return redirect(url_for('login_page'))
     
+    # Attempt to fetch the QueryResult only once
     query_result = QueryResult.query.get(query_id)
+    if query_result is None:
+        # Handle the case where the query result does not exist
+        app.logger.error('QueryResult with id %s not found.', query_id)
+        return "Query not found", 404
+
     if request.method == 'POST':
-        # Here, we assume you have a form field for the additional details named 'additional_info'
         additional_info = request.form['additional_info'].strip()
         query_result.Query += "\n\nAdditional Details:\n" + additional_info
         try:
             db.session.commit()
             app.logger.debug('Database commit successful')
+            return redirect(url_for('new_case'))
         except Exception as e:
             app.logger.error('Error in database commit: %s', str(e))
-        return redirect(url_for('new_case'))
-    return render_template('edit_case.html', query=query_result)
+            # Here you might want to return an error message to the user or handle the exception gracefully
+
+    # For GET request, process the Query string to display it nicely on the webpage
+    symptom_details = query_result.Query.split(', ') if query_result.Query else []
+    return render_template('edit_case.html', query=query_result, symptom_details=symptom_details)
+
 
 
 if __name__ == '__main__':
