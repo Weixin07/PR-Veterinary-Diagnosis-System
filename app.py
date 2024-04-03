@@ -1,7 +1,11 @@
-from flask import Flask, render_template, request, redirect, url_for, session
-from models import QueryResult, UserData, db
+from flask import Flask, render_template, request, redirect, url_for, session, jsonify
+from models import MedicalCondition, QueryResult, Report, UserData, db
 import logging
 from flask_debugtoolbar import DebugToolbarExtension
+from openai import OpenAI, OpenAIError, RateLimitError, BadRequestError
+from requests.exceptions import HTTPError, Timeout, RequestException
+
+client = OpenAI()
 
 logging.basicConfig(level=logging.DEBUG)
 
@@ -103,29 +107,63 @@ def edit_case(query_id):
     if 'role' not in session or session['role'] != 'veterinarian':
         return redirect(url_for('login_page'))
     
-    # Attempt to fetch the QueryResult only once
-    query_result = QueryResult.query.get(query_id)
+    query_result = db.session.get(QueryResult, query_id)
     if query_result is None:
-        # Handle the case where the query result does not exist
-        app.logger.error('QueryResult with id %s not found.', query_id)
+        app.logger.error(f'QueryResult with id {query_id} not found.')
         return "Query not found", 404
 
     if request.method == 'POST':
-        additional_info = request.form['additional_info'].strip()
-        query_result.Query += "\n\nAdditional Details:\n" + additional_info
+        additional_info = request.form.get('additional_info', '').strip()
+        # Ensure additional details are appended in a comma-separated format
+        if query_result.Query and additional_info:
+            query_result.Query += f", additional details:{additional_info}"
+        else:
+            query_result.Query = f"additional details:{additional_info}"
+
+        db.session.add(query_result)
+
+        '''
+        prompt_for_gpt = f"{query_result.Query}. Please provide three possible medical conditions based on the above symptoms, with justification and suggested treatment for each."
+
         try:
+            response = client.chat.completions.create(
+                model="gpt-4",
+                messages = prompt_for_gpt,
+                temperature=0.5,
+                max_tokens=256,
+                frequency_penalty=0.0,
+                n=1,
+                stop=None
+            )
+            api_response = response.choices[0].text.strip()
+            conditions = api_response.split('\n')
+
+            for condition in conditions:
+                parts = condition.split(':')
+                if len(parts) >= 2:
+                    justification, treatment_suggestion = parts[0], ':'.join(parts[1:])
+                    new_condition = MedicalCondition(
+                        QResultID=query_id,
+                        Justification=justification.strip(),
+                        TreatmentSuggestion=treatment_suggestion.strip()
+                    )
+                    db.session.add(new_condition)
             db.session.commit()
-            app.logger.debug('Database commit successful')
-            return redirect(url_for('new_case'))
+        except (OpenAIError, RateLimitError, BadRequestError, HTTPError, Timeout, RequestException) as e:
+            db.session.rollback()
+            app.logger.error(f'API call failed: {str(e)}')
+            return jsonify({"error": "API call failed", "message": str(e)}), 500
         except Exception as e:
-            app.logger.error('Error in database commit: %s', str(e))
-            # Here you might want to return an error message to the user or handle the exception gracefully
+            db.session.rollback()
+            app.logger.error(f'Unexpected error: {str(e)}')
+            return jsonify({"error": "Unexpected error", "message": str(e)}), 500
+        '''
+        db.session.commit()
+        return redirect(url_for('new_case'))
 
-    # For GET request, process the Query string to display it nicely on the webpage
-    symptom_details = query_result.Query.split(', ') if query_result.Query else []
-    return render_template('edit_case.html', query=query_result, symptom_details=symptom_details)
-
-
+    else:
+        symptom_details = query_result.Query.split(', ') if query_result.Query else []
+        return render_template('edit_case.html', query=query_result, symptom_details=symptom_details)
 
 if __name__ == '__main__':
     app.run(debug=True)
