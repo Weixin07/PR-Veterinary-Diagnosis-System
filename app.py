@@ -139,7 +139,13 @@ def edit_case(query_id):
         return render_template('edit_case.html', query=query_result, symptom_details=symptom_details)
 
 def process_query_with_gpt(query_id, query_text):
-    prompt_for_gpt = f"{query_text}. Please provide three possible medical conditions based on the above symptoms, with justification and suggested treatment for each."
+    # Adjusted prompt to clearly define the expected response format
+    prompt_for_gpt = (
+        "The recipient is a veterinarian, do not worry about using professional terms. "
+        "Please format your response as follows: 'Condition Name: Condition Justification. Treatment Suggestion: Suggested Treatment'. "
+        f"{query_text}. Please provide three possible medical conditions based on the above symptoms, "
+        "with each condition's justification and suggested treatment."
+    )
 
     try:
         response = client.chat.completions.create(
@@ -151,24 +157,43 @@ def process_query_with_gpt(query_id, query_text):
             n=1,
             stop=None
         )
-        
+
         for choice in response.choices:
             api_response = choice.message.content.strip()
             print("API Response:", api_response)  # Print the generated text
-            
-            conditions = api_response.split('\n')
+
+            # Use "Condition Name:" as a delimiter to split the response into conditions
+            conditions = api_response.split('Condition Name:')
+            # Remove the first split part if it's empty
+            if conditions and conditions[0] == '':
+                conditions.pop(0)
+
             for condition in conditions:
-                parts = condition.split(':')
-                if len(parts) >= 2:
-                    justification, treatment_suggestion = parts[0], ':'.join(parts[1:])
+                # Split by "Treatment Suggestion:" to separate justification and treatment
+                parts = condition.split('Treatment Suggestion:')
+                if len(parts) == 2:
+                    condition_text = "Condition Name:" + parts[0].strip()
+                    treatment_text = "Treatment Suggestion:" + parts[1].strip()
+
                     new_condition = MedicalCondition(
                         QResultID=query_id,
-                        justification=justification.strip(),  # Corrected attribute name
-                        TreatmentSuggestion=treatment_suggestion.strip()
+                        justification=condition_text,
+                        TreatmentSuggestion=treatment_text
                     )
-                    db.session.add(new_condition)
-        
-        db.session.commit()
+                else:
+                    # Handle cases with missing treatment suggestion by logging and creating a placeholder
+                    app.logger.error('Incomplete treatment information for a condition. Adding placeholder.')
+                    condition_text = "Condition Name:" + parts[0].strip()
+
+                    new_condition = MedicalCondition(
+                        QResultID=query_id,
+                        justification=condition_text,
+                        TreatmentSuggestion="Treatment suggestion information was incomplete."
+                    )
+                
+                db.session.add(new_condition)
+
+            db.session.commit()
     except (OpenAIError, RateLimitError, BadRequestError, HTTPError, Timeout, RequestException) as e:
         db.session.rollback()
         app.logger.error(f'API call failed: {str(e)}')
