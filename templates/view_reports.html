@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>View Reports</title>
+    <style>
+        #reports-list {
+            float: left;
+            width: 33%;
+            overflow-y: scroll;
+            height: 500px; /* Adjust the height as necessary */
+        }
+        #report-details {
+            float: right;
+            width: 66%;
+        }
+        /* Clear floats */
+        .clear { clear: both; }
+    </style>
+    <script>
+        function fetchReportDetails(reportId) {
+            fetch('/report_details/' + reportId)
+                .then(response => response.json())
+                .then(data => {
+                    let detailsHtml = `<h2>Details for Report ${reportId}</h2>`;
+                    data.forEach((condition, index) => {
+                        detailsHtml += `
+                            <h3>Condition ${index + 1}</h3>
+                            <p><strong>Medical Condition:</strong> ${condition.justification}</p>
+                            <p><strong>Treatment Suggestion:</strong> ${condition.treatment}</p>
+                        `;
+                    });
+                    document.getElementById('report-details').innerHTML = detailsHtml;
+                })
+                .catch(error => console.error('Error:', error));
+        }
+    </script>
+</head>
+<body>
+    <div id="reports-list">
+        <h1>Reports</h1>
+        <ul>
+            {% for report in reports %}
+            <li onclick="fetchReportDetails({{ report.ReportID }})">
+                Report ID: {{ report.ReportID }}
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
+    <div id="report-details">
+        <!-- Report details will be loaded here -->
+    </div>
+    <div class="clear"></div>
+</body>
+</html>

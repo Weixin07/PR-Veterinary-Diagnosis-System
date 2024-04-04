@@ -8,6 +8,9 @@
 <body>
     <h1>Welcome, {{ session['role'] | capitalize }}!</h1>
     <nav>
+        <!-- Add link to view reports -->
+        <a href="{{ url_for('view_reports') }}">View Reports</a>
+
         <!-- The link for the new case page -->
         <a href="{{ url_for('new_case') }}">New Case</a>
         <!-- Add other links or buttons as needed -->

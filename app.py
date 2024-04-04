@@ -201,5 +201,28 @@ def process_query_with_gpt(query_id, query_text):
         db.session.rollback()
         app.logger.error(f'Unexpected error: {str(e)}')
 
+@app.route('/view_reports', methods=['GET'])
+def view_reports():
+    if 'UserID' not in session:
+        return redirect(url_for('login_page'))
+    
+    reports = db.session.query(Report).all()
+    return render_template('view_reports.html', reports=reports)
+
+@app.route('/report_details/<int:report_id>', methods=['GET'])
+def report_details(report_id):
+    report = db.session.query(Report).get(report_id)
+    if report:
+        # We now fetch all related medical conditions for the report's query result
+        medical_conditions = MedicalCondition.query.filter_by(QResultID=report.QResultID).all()
+        medical_conditions_data = [{
+            'justification': condition.justification,
+            'treatment': condition.TreatmentSuggestion
+        } for condition in medical_conditions]
+
+        return jsonify(medical_conditions_data)
+    else:
+        return jsonify({'error': 'Report not found'}), 404
+
 if __name__ == '__main__':
     app.run(debug=True)
