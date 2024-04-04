@@ -3,8 +3,13 @@ body {
     font-family: 'Arial', sans-serif;
     font-size: medium;
     background-color: #E4CEBF;
-    margin: 0; /* Reset default margin */
-    padding: 0; /* Reset default padding */
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    width: 100vw;
 }
 
 /* Header styles */
@@ -66,4 +71,98 @@ body {
 .body-content {
     padding-top: 10vh; /* Adjusted to account for the new top position of the image */
     padding-left: 21%; /* Slightly more than the image width to ensure space */
+}
+
+/* Logo styles */
+.logo {
+    max-width: 10%;
+    margin-bottom: 2%;
+    object-fit: contain;
+}
+
+/* Login container styles */
+.login-container {
+    width: 70%;
+    padding: 2%;
+    background-color: #E4CEBF;
+    border-radius: 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+/* Label styling */
+label {
+    display: inline-block; /* You can adjust as needed */
+    margin-right: 1%; /* Space between the label and the input field */
+    font-weight: bold; /* Make the label text bold */
+    white-space: nowrap; /* Prevents the label from wrapping */
+}
+
+/* Input field container styling */
+.input-field {
+    display: flex; /* Aligns children (label and input) in a row */
+    align-items: center; /* Centers children vertically */
+    margin-bottom: 2%; /* Space between each input field container */
+    width: 100%; /* Make input field take up the entire width of .login-box */
+}
+
+/* Label styling */
+.input-field label {
+    flex: 0 0 30%; /* Do not grow or shrink, with a base width of 30% */
+    flex-basis: 30%; /* Label takes up 30% of the .input-field width */
+    margin-right: 5%; /* Space between label and input */
+    text-align: left; /* Aligns the text to the right */
+}
+
+/* Input field styling */
+.input-field input {
+    width: 100%;
+    padding: 3%;
+    margin-bottom: 5%; /* Spacing between input fields and button */
+    border: 1px solid #B88781;
+    border-radius: 5px;
+    font-size: 1em;
+    background-color: #B88781;
+    color: #ffffff; /* Text color for input */
+    flex-grow: 1; /* Takes up the remaining space in the container */
+    flex: 1; /* Input field takes the remaining space after the label */
+}
+
+.input-field input:focus {
+    outline: none;
+}
+
+/* Button container styling */
+.login-button-container {
+    width: 100%; /* Set width to the outer container width */
+    display: flex;
+    justify-content: center; /* Center button horizontally */
+    margin-top: 10%;
+}
+
+/* Login button styling */
+.login-button {
+    padding: 5%;
+    padding-left: 20%;
+    padding-right: 20%;
+    margin-top: 2%; /* Spacing between input fields and button */
+    background-color: #85625E;
+    color: #ffffff;
+    font-size: 1em;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    width: auto; /* Auto width for the content */
+    transition: background-color 0.3s;
+}
+
+.login-button:hover {
+    background-color: #5E4D4B; /* Button hover color */
+}
+
+.toggle-password {
+    cursor: pointer;
+    height: 5em; /* or any size that matches your design */
+    margin-left: 0.5em; /* to give some space between the password field and the icon */
 }
