@@ -142,9 +142,10 @@ def process_query_with_gpt(query_id, query_text):
     # Adjusted prompt to clearly define the expected response format
     prompt_for_gpt = (
         "The recipient is a veterinarian, do not worry about using professional terms. "
-        "Please format your response as follows: 'Condition Name: Condition Justification. Treatment Suggestion: Suggested Treatment'. "
-        f"{query_text}. Please provide three possible medical conditions based on the above symptoms, "
-        "with each condition's justification and suggested treatment."
+        "Please format your response as follows: 'Condition Name: Condition Justification. "
+        "Treatment Suggestion: Suggested Treatment. Reference: [link to source]'. "
+        f"{query_text} Please provide three possible medical conditions based on the above symptoms, "
+        "with each condition's justification, suggested treatment, and a reference link."
     )
 
     try:
@@ -164,33 +165,34 @@ def process_query_with_gpt(query_id, query_text):
 
             # Use "Condition Name:" as a delimiter to split the response into conditions
             conditions = api_response.split('Condition Name:')
-            # Remove the first split part if it's empty
             if conditions and conditions[0] == '':
                 conditions.pop(0)
 
             for condition in conditions:
-                # Split by "Treatment Suggestion:" to separate justification and treatment
                 parts = condition.split('Treatment Suggestion:')
-                if len(parts) == 2:
-                    condition_text = "Condition Name:" + parts[0].strip()
-                    treatment_text = "Treatment Suggestion:" + parts[1].strip()
+                if len(parts) < 2:
+                    app.logger.error('Incomplete information for condition. Skipping.')
+                    continue
 
-                    new_condition = MedicalCondition(
-                        QResultID=query_id,
-                        justification=condition_text,
-                        TreatmentSuggestion=treatment_text
-                    )
-                else:
-                    # Handle cases with missing treatment suggestion by logging and creating a placeholder
-                    app.logger.error('Incomplete treatment information for a condition. Adding placeholder.')
-                    condition_text = "Condition Name:" + parts[0].strip()
+                # Splitting by 'Reference:' first to ensure we capture the name properly
+                name_justification_parts = parts[0].split('Condition Justification:')
+                if len(name_justification_parts) < 2:
+                    app.logger.error('Missing justification for condition. Skipping.')
+                    continue
 
-                    new_condition = MedicalCondition(
-                        QResultID=query_id,
-                        justification=condition_text,
-                        TreatmentSuggestion="Treatment suggestion information was incomplete."
-                    )
-                
+                name_text = name_justification_parts[0].strip()
+                justification_text = name_justification_parts[1].strip()
+                treatment_reference_parts = parts[1].split('Reference:')
+                treatment_text = treatment_reference_parts[0].strip()
+                reference_text = treatment_reference_parts[1].strip().replace('[', '').replace(']', '')
+
+                new_condition = MedicalCondition(
+                    QResultID=query_id,
+                    Name=name_text,
+                    justification=justification_text,
+                    TreatmentSuggestion=treatment_text,
+                    Reference=reference_text
+                )
                 db.session.add(new_condition)
 
             db.session.commit()
@@ -200,6 +202,7 @@ def process_query_with_gpt(query_id, query_text):
     except Exception as e:
         db.session.rollback()
         app.logger.error(f'Unexpected error: {str(e)}')
+
 
 @app.route('/view_reports', methods=['GET'])
 def view_reports():
@@ -211,18 +214,21 @@ def view_reports():
 
 @app.route('/report_details/<int:report_id>', methods=['GET'])
 def report_details(report_id):
-    report = db.session.query(Report).get(report_id)
+    report = db.session.get(Report, report_id)  
     if report:
-        # We now fetch all related medical conditions for the report's query result
         medical_conditions = MedicalCondition.query.filter_by(QResultID=report.QResultID).all()
         medical_conditions_data = [{
+            'name': condition.Name,
             'justification': condition.justification,
-            'treatment': condition.TreatmentSuggestion
+            'treatment': condition.TreatmentSuggestion,
+            'reference': condition.Reference
         } for condition in medical_conditions]
 
         return jsonify(medical_conditions_data)
     else:
         return jsonify({'error': 'Report not found'}), 404
+
+
 
 if __name__ == '__main__':
     app.run(debug=True)
