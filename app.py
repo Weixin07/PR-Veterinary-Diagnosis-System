@@ -228,7 +228,5 @@ def report_details(report_id):
     else:
         return jsonify({'error': 'Report not found'}), 404
 
-
-
 if __name__ == '__main__':
     app.run(debug=True)

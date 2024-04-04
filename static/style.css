@@ -1,0 +1,69 @@
+/* Base styles for body to set font and common background */
+body {
+    font-family: 'Arial', sans-serif;
+    font-size: medium;
+    background-color: #E4CEBF;
+    margin: 0; /* Reset default margin */
+    padding: 0; /* Reset default padding */
+}
+
+/* Header styles */
+.header {
+    background-color: #FFFFFF;
+    padding: 1%; /* Flexible padding based on the width of the screen */
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0; /* Ensure full width */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    display: flex;
+    justify-content: space-between; /* Space between logout link and navigation */
+    align-items: center;
+    z-index: 1000;
+}
+
+/* Styles for logout link */
+.logout-link {
+    padding: 0 1%;
+    text-decoration: none;
+    color: #333;
+}
+
+/* Adjustments for navigation items in the header */
+.header nav {
+    display: flex;
+    justify-content: flex-end; /* Align nav items to the right */
+}
+
+.header nav a {
+    padding: 0 1%; /* Flexible padding based on the width of the screen */
+    text-decoration: none;
+    color: #333;
+}
+
+/* Footer styles */
+.footer {
+    background-color: #E6E6E6;
+    text-align: center;
+    padding: 1%; /* Flexible padding based on the width of the screen */
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0; /* Ensure full width */
+    box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Adding styles for the image below the navigation */
+.image-below-nav {
+    position: absolute;
+    top: 10vh; /* Flexible top position based on the height of the viewport */
+    left: 1%;
+    width: 10%;
+    object-fit: contain; /* Keeps the image's aspect ratio */
+}
+  
+/* Ensure content below does not overlap or hide behind the image */
+.body-content {
+    padding-top: 10vh; /* Adjusted to account for the new top position of the image */
+    padding-left: 21%; /* Slightly more than the image width to ensure space */
+}

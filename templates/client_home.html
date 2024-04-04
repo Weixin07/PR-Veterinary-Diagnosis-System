@@ -1,19 +1,29 @@
-<!-- Repeat structure for other roles, adjusting content as necessary -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Veterinarian & Veterinarary Assistant Home</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <title>Veterinarian & Veterinary Assistant Home</title>
 </head>
 <body>
-    <h1>Welcome, {{ session['role'] | capitalize }}!</h1>
-    <nav>
-        <!-- Add link to view reports -->
-        <a href="{{ url_for('view_reports') }}">View Reports</a>
+    <header class="header">
+        <a href="{{ url_for('logout') }}" class="logout-link">Logout</a>
+        <nav>
+            <a href="{{ url_for('view_reports') }}">View Reports</a> <a href="{{ url_for('new_case') }}">New Case</a> <a href="{{ url_for('new_case') }}">Manage Account</a>
+            <!-- Additional navigation links can be added here -->
+        </nav>
+    </header>
+    
+    <!-- Image below navigation -->
+    <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Description of image" class="image-below-nav">
+    
+    <!-- Additional content should start from here -->
+    <div class="body-content">
+        <!-- Content goes here -->
+    </div>
 
-        <!-- The link for the new case page -->
-        <a href="{{ url_for('new_case') }}">New Case</a>
-        <!-- Add other links or buttons as needed -->
-    </nav>
+    <footer class="footer">
+        @2024 Pet Recovery Veterinary Diagnostic System - By TP055347 APU FYP
+    </footer>
 </body>
 </html>
