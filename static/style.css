@@ -57,15 +57,6 @@ body {
     right: 0; /* Ensure full width */
     box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.1);
 }
-
-/* Adding styles for the image below the navigation */
-.image-below-nav {
-    position: absolute;
-    top: 10vh; /* Flexible top position based on the height of the viewport */
-    left: 1%;
-    width: 10%;
-    object-fit: contain; /* Keeps the image's aspect ratio */
-}
   
 /* Ensure content below does not overlap or hide behind the image */
 .body-content {
@@ -75,9 +66,22 @@ body {
 
 /* Logo styles */
 .logo {
-    max-width: 10%;
     margin-bottom: 2%;
     object-fit: contain;
+}
+
+/* Specific style for login page logo */
+.login-logo {
+    max-width: 10%; /* Customize this value as needed */
+}
+
+/* Specific style for home page logo */
+.home-logo {
+    max-width: 5%; /* Customize this value as needed */
+    position: absolute;
+    top: 12%; /* Flexible top position based on the height of the viewport */
+    left: 1%;
+    object-fit: contain; /* Keeps the image's aspect ratio */
 }
 
 /* Login container styles */
