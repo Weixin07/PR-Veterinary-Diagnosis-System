@@ -50,7 +50,7 @@ body {
 .footer {
     background-color: #E6E6E6;
     text-align: center;
-    padding: 1%; /* Flexible padding based on the width of the screen */
+    padding: 2.5%; /* Flexible padding based on the width of the screen */
     position: fixed;
     bottom: 0;
     left: 0;

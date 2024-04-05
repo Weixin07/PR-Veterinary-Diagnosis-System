@@ -227,5 +227,38 @@ def report_details(report_id):
     else:
         return jsonify({'error': 'Report not found'}), 404
 
+@app.route('/manage_account', methods=['GET', 'POST'])
+def manage_account():
+    if 'UserID' not in session:
+        return redirect(url_for('login_page'))
+
+    user_id = session['UserID']
+    user = UserData.query.get(user_id)
+    if not user:
+        return "User not found", 404
+
+    message = None
+    current_email = user.email if user else ""
+    current_password = user.password if user else ""
+
+
+    if request.method == 'POST':
+        new_email = request.form['new_email'].strip()
+        new_password = request.form['new_password'].strip()
+
+        if new_email:
+            user.email = new_email
+        if new_password:  # Assuming you are storing passwords in a hashed form.
+            user.password = new_password # This is an example, use your password hashing method.
+
+        try:
+            db.session.commit()
+            message = 'Details updated successfully.'
+        except Exception as e:
+            message = str(e)
+            db.session.rollback()
+
+    return render_template('manage_account.html', message=message, current_email=current_email, current_password=current_password)
+
 if __name__ == '__main__':
     app.run(debug=True)
