@@ -5,15 +5,19 @@
     <title>Login</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     <script>
+        window.onload = function() {
+            document.getElementById('togglePassword').addEventListener('click', togglePassword);
+        };
+
         function togglePassword() {
             var passwordInput = document.getElementById('password');
             var toggleBtn = document.getElementById('togglePassword');
             if (passwordInput.type === 'password') {
                 passwordInput.type = 'text';
-                toggleBtn.src = "{{ url_for('static', filename='images/close.png') }}"; // path to 'eye slash' icon
+                toggleBtn.src = "{{ url_for('static', filename='images/open.png') }}"; // Change to 'eye' icon for open
             } else {
                 passwordInput.type = 'password';
-                toggleBtn.src = "{{ url_for('static', filename='images/open.png') }}"; // path to 'eye' icon
+                toggleBtn.src = "{{ url_for('static', filename='images/close.png') }}"; // Change back to 'eye slash' icon for close
             }
         }
     </script>
@@ -32,7 +36,7 @@
             <div class="input-field">
                 <label for="password">Password:</label>
                 <input type="password" id="password" name="password" required>
-                <img src="{{ url_for('static', filename='images/open.png') }}" alt="Show Password" id="togglePassword" onclick="togglePassword()" class="toggle-password">
+                <img src="{{ url_for('static', filename='images/close.png') }}" alt="Toggle Password Visibility" id="togglePassword" class="toggle-password">
             </div>
             <div class="login-button-container">
                 <button type="submit" class="login-button">Login</button>

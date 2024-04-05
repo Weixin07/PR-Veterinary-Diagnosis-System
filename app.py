@@ -203,7 +203,6 @@ def process_query_with_gpt(query_id, query_text):
         db.session.rollback()
         app.logger.error(f'Unexpected error: {str(e)}')
 
-
 @app.route('/view_reports', methods=['GET'])
 def view_reports():
     if 'UserID' not in session:

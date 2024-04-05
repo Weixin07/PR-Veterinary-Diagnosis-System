@@ -163,6 +163,7 @@ label {
 
 .toggle-password {
     cursor: pointer;
-    height: 5em; /* or any size that matches your design */
+    height: 3em; /* or any size that matches your design */
     margin-left: 0.5em; /* to give some space between the password field and the icon */
+    margin-top: -1.5em;
 }
