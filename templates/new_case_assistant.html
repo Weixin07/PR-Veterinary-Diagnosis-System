@@ -3,18 +3,57 @@
 <head>
     <meta charset="UTF-8">
     <title>New Case - Assistant</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
-    <h1>New Case Entry by Assistant</h1>
-    <form action="{{ url_for('new_case') }}" method="post">
-        Activity: <input type="text" name="activity" required><br>
-        Breathing: <input type="text" name="breathing" required><br>
-        Eye Condition: <input type="text" name="eye_condition" required><br>
-        Discharge: <input type="text" name="discharge" required><br>
-        Diet & Weight: <input type="text" name="diet_weight" required><br>
-        Skin Coat Condition: <input type="text" name="skin_coat_condition" required><br>
-        Ear Condition: <input type="text" name="ear_condition" required><br>
-        <button type="submit">Submit Case</button>
-    </form>
+    <header class="header">
+        <a href="{{ url_for('logout') }}" class="logout-link">Logout</a>
+        <nav><a href="{{ url_for('home_page') }}">Return Homepage</a></nav>
+    </header>
+    
+    <!-- Main content wrapper -->
+    <div class="main-content">
+        <div class="case-container">
+            <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Pet Recovery Logo" class="logo other-logo">
+
+            <form action="{{ url_for('new_case') }}" method="post">
+                <div class="input-field">
+                    <label for="activity">Activity:</label>
+                    <input type="text" id="activity" name="activity" required class="case-input">
+                </div>
+                <div class="input-field">
+                    <label for="breathing">Breathing:</label>
+                    <input type="text" id="breathing" name="breathing" required class="case-input">
+                </div>
+                <div class="input-field">
+                    <label for="eye_condition">Eye Condition:</label>
+                    <input type="text" id="eye_condition" name="eye_condition" required class="case-input">
+                </div>
+                <div class="input-field">
+                    <label for="discharge">Discharge:</label>
+                    <input type="text" id="discharge" name="discharge" required class="case-input">
+                </div>
+                <div class="input-field">
+                    <label for="diet_weight">Diet & Weight:</label>
+                    <input type="text" id="diet_weight" name="diet_weight" required class="case-input">
+                </div>
+                <div class="input-field">
+                    <label for="skin_coat_condition">Skin Coat Condition:</label>
+                    <input type="text" id="skin_coat_condition" name="skin_coat_condition" required class="case-input">
+                </div>
+                <div class="input-field">
+                    <label for="ear_condition">Ear Condition:</label>
+                    <input type="text" id="ear_condition" name="ear_condition" required class="case-input">
+                </div>
+                <div class="login-button-container">
+                    <button type="submit" class="new-case-button">Submit Case</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <footer class="footer">
+        @2024 Pet Recovery Veterinary Diagnostic System - By TP055347 APU FYP
+    </footer>
 </body>
 </html>

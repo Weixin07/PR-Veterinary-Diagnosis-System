@@ -1,4 +1,13 @@
-/* Base styles for body to set font and common background */
+html {
+    height: 100%; /* this makes sure that html takes up full viewport height */
+    box-sizing: border-box; /* this ensures padding does not affect total width/height */
+    overflow-x: hidden; /* Prevents horizontal scroll */    
+}
+
+*, *:before, *:after {
+    box-sizing: inherit; /* inherit box-sizing to make sure padding does not affect width */
+}
+
 body {
     font-family: 'Arial', sans-serif;
     font-size: medium;
@@ -7,8 +16,7 @@ body {
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
-    height: 100vh;
+    min-height: 100vh; /* min-height to 100% viewport height will ensure footer is at the bottom */
     width: 100vw;
 }
 
@@ -38,6 +46,7 @@ body {
 .header nav {
     display: flex;
     justify-content: flex-end; /* Align nav items to the right */
+    text-align: center;
 }
 
 .header nav a {
@@ -46,16 +55,23 @@ body {
     color: #333;
 }
 
-/* Footer styles */
+.main-content {
+    flex: 1; /* forces the main content to expand */
+    width: 100%; /* ensure it takes up full width */
+    /* Add padding-top if there is a fixed header to push the content down */
+}
+
 .footer {
     background-color: #E6E6E6;
     text-align: center;
-    padding: 2.5%; /* Flexible padding based on the width of the screen */
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0; /* Ensure full width */
+    padding: 2.5%; /* This will ensure that padding is included in height calculation */
+    width: 100%; /* Full width */
     box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.1);
+    position: relative; /* Removed 'fixed' to keep it in the flow of the document */
+    bottom: 0;
+    clear: both; /* Clear any floats */
+    z-index: 2;
+    margin-top: auto; /* Push footer to the bottom */
 }
   
 /* Ensure content below does not overlap or hide behind the image */
@@ -82,6 +98,18 @@ body {
     top: 12%; /* Flexible top position based on the height of the viewport */
     left: 1%;
     object-fit: contain; /* Keeps the image's aspect ratio */
+}
+
+/* Specific style for other page logo */
+.other-logo {
+    max-width: 10%; /* Customize this value as needed */
+    margin-top: 1%; /* Flexible top position based on the height of the viewport */
+    object-fit: 1%; /* Keeps the image's aspect ratio */
+    margin-bottom: 2%; /* Space below the logo */
+    display: flex;
+    flex-direction: column;
+    position: relative; /* Relative positioning */
+    z-index: 1; /* Stack order */
 }
 
 /* Login container styles */
@@ -143,6 +171,7 @@ label {
     display: flex;
     justify-content: center; /* Center button horizontally */
     margin-top: 10%;
+    margin-bottom: 2%; /* Added bottom margin for spacing */
 }
 
 /* Login button styling */
@@ -171,3 +200,69 @@ label {
     margin-left: 0.5em; /* to give some space between the password field and the icon */
     margin-top: -1.5em;
 }
+
+/* Additional input styles specifically for new case page */
+.case-input {
+    width: 100%;
+    padding: 10px; /* Adjust padding as needed */
+    margin-bottom: 10px; /* Spacing between input fields */
+    border: 1px solid #ccc; /* Border color */
+    border-radius: 5px; /* Border radius for rounded corners */
+    font-size: 1em; /* Font size */
+    background-color: #fff; /* Background color */
+    color: #333; /* Text color */
+}
+
+.case-input:focus {
+    outline: none;
+    border-color: #B88781; /* Highlight color on focus */
+}
+
+/* Style adjustments for new case submit button */
+.new-case-button {
+    padding: 5%;
+    padding-left: 20%;
+    padding-right: 20%;
+    margin-top: -5%; /* Spacing between input fields and button */
+    background-color: #85625E;
+    color: #ffffff;
+    font-size: 1em;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    width: auto; /* Auto width for the content */
+    transition: background-color 0.3s;
+    margin-bottom: 1; /* Space below the button */
+}
+
+.new-case-button:hover {
+    background-color: #5E4D4B; /* Button hover color */
+}
+
+.other {
+    font-family: 'Arial', sans-serif;
+    font-size: medium;
+    background-color: #E4CEBF;
+    margin: 0;
+    display: block; /* Changed from flex to block */
+    width: 100%;
+    overflow-y: auto; /* Ensure the body is scrollable */
+}
+
+/* Adjusted case-container for natural document flow */
+.case-container {
+    max-width: 100%; /* Maximum width */
+    width: 100%; /* Relative to viewport width */
+    margin-top: 3%; /* Top margin */
+    padding: 2%;
+    background-color: #E4CEBF;
+    border-radius: 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative; /* Relative positioning */
+    z-index: 1; /* Stack order */
+}
+
+
+
