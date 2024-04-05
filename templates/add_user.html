@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Add New User</title>
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='style.css') }}"
+    />
+  </head>
+  <body>
+    <header class="header">
+      <a href="{{ url_for('logout') }}" class="logout-link">Logout</a>
+      <nav><a href="{{ url_for('home_page') }}">Return Homepage</a></nav>
+    </header>
+
+    <div class="main-content">
+      <div class="case-container">
+        <img
+          src="{{ url_for('static', filename='images/logo.png') }}"
+          alt="Pet Recovery Logo"
+          class="logo other-logo"
+        />
+        <form method="post" action="{{ url_for('add_user') }}">
+          <div class="input-field">
+            <label for="email">Email:</label>
+            <input type="email" id="email" name="email" required />
+          </div>
+          <div class="input-field">
+            <label for="password">Password:</label>
+            <input type="password" id="password" name="password" required />
+          </div>
+          <div class="input-field">
+            <label for="role">Role:</label>
+            <select id="role" name="role" required>
+              <option value="admin">Admin</option>
+              <option value="veterinarian">Veterinarian</option>
+              <option value="assistant">Assistant</option>
+            </select>
+          </div>
+          <div class="login-button-container">
+            <button type="submit" class="new-case-button">Add User</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <footer class="footer">
+      @2024 Pet Recovery Veterinary Diagnostic System - By TP055347 APU FYP
+    </footer>
+  </body>
+</html>

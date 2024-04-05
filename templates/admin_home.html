@@ -4,9 +4,26 @@
 <head>
     <meta charset="UTF-8">
     <title>Admin Home</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
+
 <body>
-    <h1>Welcome, Admin!</h1>
-    <!-- Content specific to the Admin role here -->
+    <header class="header admin-home">
+        <a href="{{ url_for('logout') }}" class="logout-link">Logout</a>
+    </header>
+    <div class="main-content">
+        <div class="admin-container">
+            <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Pet Recovery Logo" class="logo other-logo">
+            <nav>
+                <a href="{{ url_for('manage_users') }}">Update & Delete Users</a> 
+                <a href="{{ url_for('add_user') }}">Add User</a>
+            </nav>
+        </div>
+    </div>
+
+    <footer class="footer">
+        @2024 Pet Recovery Veterinary Diagnostic System - By TP055347 APU FYP
+    </footer>
 </body>
 </html>
+

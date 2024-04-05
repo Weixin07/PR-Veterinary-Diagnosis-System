@@ -1,426 +1,538 @@
 html {
-    height: 100%; /* this makes sure that html takes up full viewport height */
-    box-sizing: border-box; /* this ensures padding does not affect total width/height */
-    overflow-x: hidden; /* Prevents horizontal scroll */    
+  height: 100%; /* this makes sure that html takes up full viewport height */
+  box-sizing: border-box; /* this ensures padding does not affect total width/height */
+  overflow-x: hidden; /* Prevents horizontal scroll */
 }
 
-*, *:before, *:after {
-    box-sizing: inherit; /* inherit box-sizing to make sure padding does not affect width */
+*,
+*:before,
+*:after {
+  box-sizing: inherit; /* inherit box-sizing to make sure padding does not affect width */
 }
 
 body {
-    font-family: 'Arial', sans-serif;
-    font-size: medium;
-    background-color: #E4CEBF;
-    margin: 0;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    min-height: 100vh; /* min-height to 100% viewport height will ensure footer is at the bottom */
-    width: 100vw;
+  font-family: "Arial", sans-serif;
+  font-size: medium;
+  background-color: #e4cebf;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-height: 100vh; /* min-height to 100% viewport height will ensure footer is at the bottom */
+  width: 100vw;
 }
 
 /* Header styles */
 .header {
-    background-color: #FFFFFF;
-    position: relative; /* Removed 'fixed' to keep it in the flow of the document */
-    width: 100%; /* Full width */
-    top: 0;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    display: flex;
-    justify-content: space-between; /* Space between logout link and navigation */
-    align-items: center;
-    padding: 1%; /* This will ensure that padding is included in height calculation */
-    clear: both; /* Clear any floats */
-    z-index: 2;
-    margin-bottom: -3%; /* Push footer to the bottom */
+  background-color: #ffffff;
+  position: relative; /* Removed 'fixed' to keep it in the flow of the document */
+  width: 100%; /* Full width */
+  top: 0;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  display: flex;
+  justify-content: space-between; /* Space between logout link and navigation */
+  align-items: center;
+  padding: 1%; /* This will ensure that padding is included in height calculation */
+  clear: both; /* Clear any floats */
+  z-index: 2;
+  margin-bottom: -3%; /* Push footer to the bottom */
 }
 
 /* Styles for logout link */
 .logout-link {
-    padding: 0 1%;
-    text-decoration: none;
-    color: #333;
+  padding: 0 1%;
+  text-decoration: none;
+  color: #333;
 }
 
 /* Adjustments for navigation items in the header */
 .header nav {
-    display: flex;
-    justify-content: flex-end; /* Align nav items to the right */
-    text-align: center;
+  display: flex;
+  justify-content: flex-end; /* Align nav items to the right */
+  text-align: center;
 }
 
 .header nav a {
-    padding: 0 1%; /* Flexible padding based on the width of the screen */
-    text-decoration: none;
-    color: #333;
+  padding: 0 1%; /* Flexible padding based on the width of the screen */
+  text-decoration: none;
+  color: #333;
 }
 
 .main-content {
-    flex: 1; /* forces the main content to expand */
-    width: 100%; /* ensure it takes up full width */
-    /* Add padding-top if there is a fixed header to push the content down */
+  flex: 1; /* forces the main content to expand */
+  width: 100%; /* ensure it takes up full width */
+  /* Add padding-top if there is a fixed header to push the content down */
 }
 
 .footer {
-    background-color: #E6E6E6;
-    text-align: center;
-    padding: 2.5%; /* This will ensure that padding is included in height calculation */
-    width: 100%; /* Full width */
-    box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.1);
-    position: relative; /* Removed 'fixed' to keep it in the flow of the document */
-    bottom: 0;
-    clear: both; /* Clear any floats */
-    z-index: 2;
-    margin-top: auto; /* Push footer to the bottom */
+  background-color: #e6e6e6;
+  text-align: center;
+  padding: 2.5%; /* This will ensure that padding is included in height calculation */
+  width: 100%; /* Full width */
+  box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.1);
+  position: relative; /* Removed 'fixed' to keep it in the flow of the document */
+  bottom: 0;
+  clear: both; /* Clear any floats */
+  z-index: 2;
+  margin-top: auto; /* Push footer to the bottom */
 }
-  
+
 /* Ensure content below does not overlap or hide behind the image */
 .body-content {
-    padding-top: 10vh; /* Adjusted to account for the new top position of the image */
-    padding-left: 21%; /* Slightly more than the image width to ensure space */
+  padding-top: 10vh; /* Adjusted to account for the new top position of the image */
+  padding-left: 21%; /* Slightly more than the image width to ensure space */
 }
 
 /* Logo styles */
 .logo {
-    margin-bottom: 2%;
-    object-fit: contain;
+  margin-bottom: 2%;
+  object-fit: contain;
 }
 
 /* Specific style for login page logo */
 .login-logo {
-    width: 20%; /* Customize this value as needed */
-    margin-bottom: 5%; /* Space below the logo */
-
+  width: 20%; /* Customize this value as needed */
+  margin-bottom: 5%; /* Space below the logo */
 }
 
 /* Specific style for home page logo */
 .home-logo {
-    max-width: 5%; /* Customize this value as needed */
-    position: absolute;
-    top: 12%; /* Flexible top position based on the height of the viewport */
-    left: 1%;
-    object-fit: contain; /* Keeps the image's aspect ratio */
+  max-width: 5%; /* Customize this value as needed */
+  position: absolute;
+  top: 12%; /* Flexible top position based on the height of the viewport */
+  left: 1%;
+  object-fit: contain; /* Keeps the image's aspect ratio */
 }
 
 /* Specific style for other page logo */
 .other-logo {
-    max-width: 10%; /* Customize this value as needed */
-    margin-top: 1%; /* Flexible top position based on the height of the viewport */
-    object-fit: 1%; /* Keeps the image's aspect ratio */
-    margin-bottom: 2%; /* Space below the logo */
-    display: flex;
-    flex-direction: column;
-    position: relative; /* Relative positioning */
-    z-index: 1; /* Stack order */
+  max-width: 10%; /* Customize this value as needed */
+  margin-top: 1%; /* Flexible top position based on the height of the viewport */
+  object-fit: 1%; /* Keeps the image's aspect ratio */
+  margin-bottom: 2%; /* Space below the logo */
+  display: flex;
+  flex-direction: column;
+  position: relative; /* Relative positioning */
+  z-index: 1; /* Stack order */
 }
 
 /* Login container styles */
 .login-container {
-    width: 70%;
-    padding: 2%;
-    background-color: #E4CEBF;
-    border-radius: 10px;
-    display: flex;
-    flex-direction: column;
-    justify-content: center; /* Add this to center vertically */
-    align-items: center; /* This already centers horizontally */
-    height: 85vh; /* This will take the full height of the viewport */
-    box-sizing: border-box; /* Make sure padding doesn't affect the final width/height */
+  width: 70%;
+  padding: 2%;
+  background-color: #e4cebf;
+  border-radius: 10px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center; /* Add this to center vertically */
+  align-items: center; /* This already centers horizontally */
+  height: 85vh; /* This will take the full height of the viewport */
+  box-sizing: border-box; /* Make sure padding doesn't affect the final width/height */
 }
-
 
 /* Label styling */
 label {
-    display: inline-block; /* You can adjust as needed */
-    margin-right: 1%; /* Space between the label and the input field */
-    font-weight: bold; /* Make the label text bold */
-    white-space: nowrap; /* Prevents the label from wrapping */
+  display: inline-block; /* You can adjust as needed */
+  margin-right: 1%; /* Space between the label and the input field */
+  font-weight: bold; /* Make the label text bold */
+  white-space: nowrap; /* Prevents the label from wrapping */
 }
 
 /* Input field container styling */
 .input-field {
-    display: flex; /* Aligns children (label and input) in a row */
-    align-items: center; /* Centers children vertically */
-    margin-bottom: 2%; /* Space between each input field container */
-    width: 100%; /* Make input field take up the entire width of .login-box */
+  display: flex; /* Aligns children (label and input) in a row */
+  align-items: center; /* Centers children vertically */
+  margin-bottom: 2%; /* Space between each input field container */
+  width: 100%; /* Make input field take up the entire width of .login-box */
 }
 
 /* Label styling */
 .input-field label {
-    flex: 0 0 30%; /* Do not grow or shrink, with a base width of 30% */
-    flex-basis: 30%; /* Label takes up 30% of the .input-field width */
-    margin-right: 5%; /* Space between label and input */
-    text-align: left; /* Aligns the text to the right */
+  flex: 0 0 30%; /* Do not grow or shrink, with a base width of 30% */
+  flex-basis: 30%; /* Label takes up 30% of the .input-field width */
+  margin-right: 5%; /* Space between label and input */
+  text-align: left; /* Aligns the text to the right */
 }
 
 /* Input field styling */
 .input-field input {
-    width: 100%;
-    padding: 3%;
-    margin-bottom: 5%; /* Spacing between input fields and button */
-    border: 1px solid #B88781;
-    border-radius: 5px;
-    font-size: 1em;
-    background-color: #B88781;
-    color: #ffffff; /* Text color for input */
-    flex-grow: 1; /* Takes up the remaining space in the container */
-    flex: 1; /* Input field takes the remaining space after the label */
+  width: 100%;
+  padding: 3%;
+  margin-bottom: 5%; /* Spacing between input fields and button */
+  border: 1px solid #b88781;
+  border-radius: 5px;
+  font-size: 1em;
+  background-color: #b88781;
+  color: #ffffff; /* Text color for input */
+  flex-grow: 1; /* Takes up the remaining space in the container */
+  flex: 1; /* Input field takes the remaining space after the label */
 }
 
 .input-field input:focus {
-    outline: none;
+  outline: none;
 }
 
 /* Button container styling */
 .login-button-container {
-    width: 100%; /* Set width to the outer container width */
-    display: flex;
-    justify-content: center; /* Center button horizontally */
-    margin-top: 10%;
-    margin-bottom: 2%; /* Added bottom margin for spacing */
+  width: 100%; /* Set width to the outer container width */
+  display: flex;
+  justify-content: center; /* Center button horizontally */
+  margin-top: 10%;
+  margin-bottom: 2%; /* Added bottom margin for spacing */
 }
 
 /* Login button styling */
 .login-button {
-    padding: 5%;
-    padding-left: 20%;
-    padding-right: 20%;
-    margin-top: 2%; /* Spacing between input fields and button */
-    background-color: #85625E;
-    color: #ffffff;
-    font-size: 1em;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    width: auto; /* Auto width for the content */
-    transition: background-color 0.3s;
+  padding: 5%;
+  padding-left: 20%;
+  padding-right: 20%;
+  margin-top: 2%; /* Spacing between input fields and button */
+  background-color: #85625e;
+  color: #ffffff;
+  font-size: 1em;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  width: auto; /* Auto width for the content */
+  transition: background-color 0.3s;
 }
 
 .login-button:hover {
-    background-color: #5E4D4B; /* Button hover color */
+  background-color: #5e4d4b; /* Button hover color */
 }
 
 .toggle-password {
-    cursor: pointer;
-    height: 3em; /* or any size that matches your design */
-    margin-left: 0.5em; /* to give some space between the password field and the icon */
-    margin-top: -1.5em;
+  cursor: pointer;
+  height: 3em; /* or any size that matches your design */
+  margin-left: 0.5em; /* to give some space between the password field and the icon */
+  margin-top: -1.5em;
 }
 
 /* Additional input styles specifically for new case page */
 .case-input {
-    width: 100%;
-    padding: 10px; /* Adjust padding as needed */
-    margin-bottom: 10px; /* Spacing between input fields */
-    border: 1px solid #ccc; /* Border color */
-    border-radius: 5px; /* Border radius for rounded corners */
-    font-size: 1em; /* Font size */
-    background-color: #fff; /* Background color */
-    color: #333; /* Text color */
+  width: 100%;
+  padding: 10px; /* Adjust padding as needed */
+  margin-bottom: 10px; /* Spacing between input fields */
+  border: 1px solid #ccc; /* Border color */
+  border-radius: 5px; /* Border radius for rounded corners */
+  font-size: 1em; /* Font size */
+  background-color: #fff; /* Background color */
+  color: #333; /* Text color */
 }
 
 .case-input:focus {
-    outline: none;
-    border-color: #B88781; /* Highlight color on focus */
+  outline: none;
+  border-color: #b88781; /* Highlight color on focus */
 }
 
 /* Style adjustments for new case submit button */
 .new-case-button {
-    padding: 5%;
-    padding-left: 20%;
-    padding-right: 20%;
-    margin-top: -5%; /* Spacing between input fields and button */
-    background-color: #85625E;
-    color: #ffffff;
-    font-size: 1em;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    width: auto; /* Auto width for the content */
-    transition: background-color 0.3s;
-    margin-bottom: 1; /* Space below the button */
+  padding: 5%;
+  padding-left: 20%;
+  padding-right: 20%;
+  margin-top: -5%; /* Spacing between input fields and button */
+  background-color: #85625e;
+  color: #ffffff;
+  font-size: 1em;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  width: auto; /* Auto width for the content */
+  transition: background-color 0.3s;
+  margin-bottom: 1; /* Space below the button */
 }
 
 .new-case-button:hover {
-    background-color: #5E4D4B; /* Button hover color */
+  background-color: #5e4d4b; /* Button hover color */
 }
 
 /* Adjusted case-container for natural document flow */
 .case-container {
-    max-width: 100%; /* Maximum width */
-    width: 100%; /* Relative to viewport width */
-    margin-top: 3%; /* Top margin */
-    padding: 2%;
-    background-color: #E4CEBF;
-    border-radius: 10px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    position: relative; /* Relative positioning */
-    z-index: 1; /* Stack order */
+  max-width: 100%; /* Maximum width */
+  width: 100%; /* Relative to viewport width */
+  margin-top: 3%; /* Top margin */
+  padding: 2%;
+  background-color: #e4cebf;
+  border-radius: 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative; /* Relative positioning */
+  z-index: 1; /* Stack order */
 }
 
 /* Adjusted case-container for natural document flow */
 .veterinarian {
-    max-width: 70%; /* Align width with .login-container */
-    margin: auto; /* Center the container on the page */
-    padding: 2%;
-    background-color: #B88781;
-    border-radius: 10px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+  max-width: 70%; /* Align width with .login-container */
+  margin: auto; /* Center the container on the page */
+  padding: 2%;
+  background-color: #b88781;
+  border-radius: 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 /* This will style the list of cases with similar padding and background as the case-input fields */
 .case-list {
-    list-style: none;
-    width: 100%; /* Match the case-container width */
-    padding: 0;
-    margin: 0; /* Removes default margin */
-  }
-  
-  .case-item {
-    padding: 0.5%; /* Padding inside each item */
-  }
-  
-  .case-link {
-    text-decoration: none; /* Removes underline from links */
-    color: #fff; /* Dark text for readability */
-  }
-  
-  .no-cases-message {
-    background-color: #fff;
-    padding: 10px;
-    border-radius: 5px;
-    text-align: center;
-  }
+  list-style: none;
+  width: 100%; /* Match the case-container width */
+  padding: 0;
+  margin: 0; /* Removes default margin */
+}
+
+.case-item {
+  padding: 0.5%; /* Padding inside each item */
+}
+
+.case-link {
+  text-decoration: none; /* Removes underline from links */
+  color: #fff; /* Dark text for readability */
+}
+
+.no-cases-message {
+  background-color: #fff;
+  padding: 10px;
+  border-radius: 5px;
+  text-align: center;
+}
 
 /* Login container styles */
 .manageaccount-container {
-    width: 70%;
-    padding: 2%;
-    margin-top: 2%;
-    margin-bottom: -2%;
-    background-color: #E4CEBF;
-    border-radius: 10px;
-    display: flex;
-    flex-direction: column;
-    justify-content: center; /* Add this to center vertically */
-    align-items: center; /* This already centers horizontally */
-    height: 85vh; /* This will take the full height of the viewport */
-    box-sizing: border-box; /* Make sure padding doesn't affect the final width/height */
+  width: 70%;
+  padding: 2%;
+  margin-top: 2%;
+  margin-bottom: -2%;
+  background-color: #e4cebf;
+  border-radius: 10px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center; /* Add this to center vertically */
+  align-items: center; /* This already centers horizontally */
+  height: 85vh; /* This will take the full height of the viewport */
+  box-sizing: border-box; /* Make sure padding doesn't affect the final width/height */
 }
 
 /* Styles specific for edit_case page */
 .edit-case {
-    /* Add the same styling as .veterinarian but for edit-case */
-    width: fit-content;
-    margin: auto; /* Center the container on the page */
-    padding: 2%;
-    background-color: #B88781; /* You can choose a different color if you like */
-    border-radius: 10px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    box-sizing: border-box; /* Make sure padding doesn't affect the final width/height */
+  /* Add the same styling as .veterinarian but for edit-case */
+  width: fit-content;
+  margin: auto; /* Center the container on the page */
+  padding: 2%;
+  background-color: #b88781; /* You can choose a different color if you like */
+  border-radius: 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  box-sizing: border-box; /* Make sure padding doesn't affect the final width/height */
 }
 
 /* Textarea adjustments to match input fields */
 .case-textarea {
-    margin-top: 5%;
-    display: flex; /* Aligns children (label and input) in a row */
-    align-items: center; /* Centers children vertically */
-    margin-bottom: 2%; /* Space between each input field container */
-    width: 100%; /* Make input field take up the entire width of .login-box */
-    font-size: larger;
-    resize: none;
+  margin-top: 5%;
+  display: flex; /* Aligns children (label and input) in a row */
+  align-items: center; /* Centers children vertically */
+  margin-bottom: 2%; /* Space between each input field container */
+  width: 100%; /* Make input field take up the entire width of .login-box */
+  font-size: larger;
+  resize: none;
 }
 
 .case-textarea:focus {
-    outline: none;
-    border-color: #B88781; /* Highlight color on focus */
+  outline: none;
+  border-color: #b88781; /* Highlight color on focus */
 }
 
 .symptom-list {
-    list-style: none;
-    width: 100%; /* Match the case-container width */
-    padding: 0;
-    margin: 0; /* Removes default margin */
+  list-style: none;
+  width: 100%; /* Match the case-container width */
+  padding: 0;
+  margin: 0; /* Removes default margin */
 }
 
 .symptom-item {
-    padding: 2%; /* Padding inside each item */
-    color: #fff; /* Dark text for readability */
-    font-size: larger;
+  padding: 2%; /* Padding inside each item */
+  color: #fff; /* Dark text for readability */
+  font-size: larger;
 }
 
 .reports-list {
-    width: 33%;
-    background-color: #B88781;
-    border-radius: 10px 0 0 10px; /* Adjusted for left side */
-    padding: 2%;
-    margin-top: 3%; /* Align top with the page */
-    flex-grow: 1; /* Allow box to grow and fill the height */
-    overflow-y: auto;
-    color: #fff;
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-start; /* Align content to the top */
+  width: 33%;
+  background-color: #b88781;
+  border-radius: 10px 0 0 10px; /* Adjusted for left side */
+  padding: 2%;
+  margin-top: 3%; /* Align top with the page */
+  flex-grow: 1; /* Allow box to grow and fill the height */
+  overflow-y: auto;
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start; /* Align content to the top */
 }
 
 .report-details {
-    width: 66%;
-    background-color: #E4CEBF;
-    border-radius: 0 10px 10px 0; /* Adjusted for right side */
-    padding: 2%;
-    flex-grow: 1; /* Allow box to grow and fill the height */
-    overflow-y: auto;
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-start; /* Align content to the top */
+  width: 66%;
+  background-color: #e4cebf;
+  border-radius: 0 10px 10px 0; /* Adjusted for right side */
+  padding: 2%;
+  flex-grow: 1; /* Allow box to grow and fill the height */
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start; /* Align content to the top */
 }
 
 /* Clearfix for the floating elements */
 .clearfix::after {
-    content: "";
-    clear: both;
-    display: table;
+  content: "";
+  clear: both;
+  display: table;
 }
 
 /* Apply the clearfix to the main-content where floating elements are present */
 .viewreport {
-    clear: both;
-    display: flex; /* Changed to flex to handle layout more effectively */
-    flex-direction: row; /* Align children horizontally */
-    width: 100%;
-    align-items: stretch; /* Stretch items to fill the container height */
-    margin-top: -2.5%; /* Adjust based on your header height */
+  clear: both;
+  display: flex; /* Changed to flex to handle layout more effectively */
+  flex-direction: row; /* Align children horizontally */
+  width: 100%;
+  align-items: stretch; /* Stretch items to fill the container height */
+  margin-top: -2.5%; /* Adjust based on your header height */
 }
 
 .reports-header {
-    display: flex;
-    align-items: center;
-    margin-bottom: -5%; /* Adjust as needed for space below the header */
-    margin-top: 7%;
+  display: flex;
+  align-items: center;
+  margin-bottom: -5%; /* Adjust as needed for space below the header */
+  margin-top: 7%;
 }
 
 /* Styles specific to the reports header */
 .reports-list h1 {
-    margin: 0; /* Removes default margin */
-    font-size: 1.5em; /* Adjust as needed */
+  margin: 0; /* Removes default margin */
+  font-size: 1.5em; /* Adjust as needed */
 }
 
 .report-logo {
-    max-width: 20%; /* Adjust as needed */
-    margin-right: 5%; /* Space between logo and header text */
+  max-width: 20%; /* Adjust as needed */
+  margin-right: 5%; /* Space between logo and header text */
 }
 
 .report-item {
-    padding: 3%; /* Padding inside each item */
+  padding: 3%; /* Padding inside each item */
+}
+
+.query-content {
+  margin-left: 2em; /* This applies the tab effect to the entire block */
+}
+
+.admin-container {
+  max-width: 100%; /* Maximum width */
+  width: 100%; /* Relative to viewport width */
+  padding: 2%;
+  background-color: #e4cebf;
+  border-radius: 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative; /* Relative positioning */
+  z-index: 1; /* Stack order */
+  justify-content: center; /* Center items horizontally */
+  margin-top: 5%; /* Adjust as needed */
+}
+
+.admin-container nav {
+  display: flex;
+  flex-direction: column; /* Stack links vertically */
+  align-items: center; /* Center items horizontally */
+  padding: 1em 0; /* Add padding at the top and bottom */
+}
+
+/* Link adjustments for better appearance */
+.admin-container nav a {
+  padding: 0.5em 4em; /* Vertical and horizontal padding for links */
+  margin: 0.5em 0; /* Margin for space between links */
+  text-decoration: none;
+  background-color: #85625e; /* Link background color */
+  color: #ffffff; /* Text color */
+  border-radius: 5px; /* Rounded corners for links */
+  text-align: center; /* Center text within links */
+  transition: background-color 0.3s; /* Smooth transition for hover effect */
+  width: fit-content; /* Adjust width as needed to fit content */
+  white-space: nowrap; /* This prevents the text from wrapping */
+  overflow: hidden; /* Hide overflow */
+  text-overflow: ellipsis; /* Add an ellipsis if the text is too long */
+  min-width: 25%; /* Minimum width to ensure enough space for text */
+}
+
+.admin-container nav a:hover {
+  background-color: #5e4d4b; /* Darken link background on hover */
+}
+
+.user-table {
+  max-width: 100%; /* Maximum width */
+  width: 100%; /* Relative to viewport width */
+  padding: 2%;
+  background-color: #e4cebf;
+  border-radius: 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative; /* Relative positioning */
+  z-index: 1; /* Stack order */
+  justify-content: center; /* Center items horizontally */
+  margin-top: 5%; /* Adjust as needed */
+}
+
+/* Specifically for the select element */
+.input-field select {
+  -webkit-appearance: none; /* Removes default styling on webkit browsers */
+  -moz-appearance: none; /* Removes default styling for Firefox */
+  appearance: none; /* Removes default arrow for IE */
+  background-image: url('data:image/svg+xml;utf8,<svg fill="black" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/></svg>'); /* Add custom dropdown arrow */
+  background-position: right 0.5em top 50%; /* Position the background image */
+  background-repeat: no-repeat;
+  background-size: 0.65em auto; /* Size of the background image */
+  padding-right: 2em; /* Adjust padding to make room for the arrow */
+  background-color: #b88781;
+  width: 100%;
+  padding: 3%;
+  margin-bottom: 5%; /* Spacing between input fields and button */
+  border: 1px solid #b88781;
+  border-radius: 5px;
+  font-size: 1em;
+  color: #ffffff; /* Text color for input */
+  flex-grow: 1; /* Takes up the remaining space in the container */
+  flex: 1; /* Input field takes the remaining space after the label */
+}
+
+.input-field select:focus {
+  outline: none;
+}
+
+/* Header styles */
+.admin-home {
+  height: 65px;
+}
+
+/* Table and cell styling */
+table {
+  border-collapse: separate;
+  border-spacing: 2%; /* This sets the spacing between cells */
+  width: 75%; /* Adjust the width as needed */
+  padding: 2%;
+  background-color: #b88781;
+  border-radius: 10px;
+}
+
+th,
+td {
+  padding: 1%; /* This adds space within each cell */
+  text-align: left; /* Aligns text to the left of the cell */
+}
+
+/* Table row hover styling */
+tbody tr:hover {
+    background-color: #5e4d4b; /* This is the color the row will change to when you hover over it */
   }
 
-  .query-content {
-    margin-left: 2em; /* This applies the tab effect to the entire block */
-  }
+

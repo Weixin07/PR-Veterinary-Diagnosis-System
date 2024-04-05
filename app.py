@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for, session, jsonify
+from flask import Flask, flash, render_template, request, redirect, url_for, session, jsonify
 from models import MedicalCondition, QueryResult, Report, UserData, db
 import logging
 from flask_debugtoolbar import DebugToolbarExtension
@@ -262,6 +262,69 @@ def manage_account():
             db.session.rollback()
 
     return render_template('manage_account.html', message=message, current_email=current_email, current_password=current_password)
+
+@app.route('/manage_users', methods=['GET'])
+def manage_users():
+    if 'role' in session and session['role'] == 'admin':
+        users = UserData.query.all()
+        return render_template('edit_users.html', users=users)
+    return redirect(url_for('login_page'))
+
+@app.route('/update_user/<int:user_id>', methods=['POST'])
+def update_user(user_id):
+    if 'role' not in session or session['role'] != 'admin':
+        return redirect(url_for('login_page'))
+
+    user = UserData.query.get(user_id)
+    if user:
+        user.email = request.form['email']
+        user.role = request.form['role']
+        db.session.commit()
+        return redirect(url_for('manage_users'))
+    return "User not found", 404
+
+@app.route('/add_user', methods=['GET', 'POST'])
+def add_user():
+    if 'role' in session and session['role'] == 'admin':
+        if request.method == 'POST':
+            email = request.form['email']
+            password = request.form['password']  # This should be hashed
+            role = request.form['role']
+
+            new_user = UserData(email=email, password=password, role=role)
+            db.session.add(new_user)
+            try:
+                db.session.commit()
+                return redirect(url_for('home_page'))
+            except Exception as e:
+                db.session.rollback()
+                # handle exception, e.g., duplicate email
+        return render_template('add_user.html')
+    return redirect(url_for('login_page'))
+
+@app.route('/delete_user/<int:user_id>', methods=['POST'])
+def delete_user(user_id):
+    # Security check: Ensure that the current user has admin role
+    if 'role' not in session or session['role'] != 'admin':
+        return redirect(url_for('login_page'))
+
+    # Retrieve the user to delete
+    user_to_delete = UserData.query.get(user_id)
+    if user_to_delete:
+        db.session.delete(user_to_delete)
+        try:
+            db.session.commit()
+            # You can add a message to the flash storage to indicate success
+            flash('User deleted successfully.', 'success')
+        except Exception as e:
+            # You can add a message to the flash storage to indicate failure
+            flash('An error occurred while deleting the user.', 'error')
+            db.session.rollback()
+    else:
+        flash('User not found.', 'error')
+
+    # Redirect to the manage users page
+    return redirect(url_for('manage_users'))
 
 if __name__ == '__main__':
     app.run(debug=True)
