@@ -203,13 +203,16 @@ def process_query_with_gpt(query_id, query_text):
         db.session.rollback()
         app.logger.error(f'Unexpected error: {str(e)}')
 
-@app.route('/view_reports', methods=['GET'])
+@app.route('/view_reports')
 def view_reports():
-    if 'UserID' not in session:
-        return redirect(url_for('login_page'))
-    
-    reports = db.session.query(Report).all()
-    return render_template('view_reports.html', reports=reports)
+    # Perform a join between Report and QueryResult based on QResultID
+    reports_with_queries = db.session.query(
+        Report.ReportID,
+        QueryResult.Query
+    ).join(QueryResult, Report.QResultID == QueryResult.QResultID).all()
+
+    # Pass the joined data to the template
+    return render_template('view_reports.html', reports=reports_with_queries)
 
 @app.route('/report_details/<int:report_id>', methods=['GET'])
 def report_details(report_id):

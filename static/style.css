@@ -356,3 +356,71 @@ label {
     font-size: larger;
 }
 
+.reports-list {
+    width: 33%;
+    background-color: #B88781;
+    border-radius: 10px 0 0 10px; /* Adjusted for left side */
+    padding: 2%;
+    margin-top: 3%; /* Align top with the page */
+    flex-grow: 1; /* Allow box to grow and fill the height */
+    overflow-y: auto;
+    color: #fff;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start; /* Align content to the top */
+}
+
+.report-details {
+    width: 66%;
+    background-color: #E4CEBF;
+    border-radius: 0 10px 10px 0; /* Adjusted for right side */
+    padding: 2%;
+    flex-grow: 1; /* Allow box to grow and fill the height */
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start; /* Align content to the top */
+}
+
+/* Clearfix for the floating elements */
+.clearfix::after {
+    content: "";
+    clear: both;
+    display: table;
+}
+
+/* Apply the clearfix to the main-content where floating elements are present */
+.viewreport {
+    clear: both;
+    display: flex; /* Changed to flex to handle layout more effectively */
+    flex-direction: row; /* Align children horizontally */
+    width: 100%;
+    align-items: stretch; /* Stretch items to fill the container height */
+    margin-top: -2.5%; /* Adjust based on your header height */
+}
+
+.reports-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: -5%; /* Adjust as needed for space below the header */
+    margin-top: 7%;
+}
+
+/* Styles specific to the reports header */
+.reports-list h1 {
+    margin: 0; /* Removes default margin */
+    font-size: 1.5em; /* Adjust as needed */
+}
+
+.report-logo {
+    max-width: 20%; /* Adjust as needed */
+    margin-right: 5%; /* Space between logo and header text */
+}
+
+.report-item {
+    padding: 3%; /* Padding inside each item */
+  }
+
+  .query-content {
+    margin-left: 2em; /* This applies the tab effect to the entire block */
+  }

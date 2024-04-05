@@ -3,22 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>View Reports</title>
-    <style>
-        #reports-list {
-            float: left;
-            width: 33%;
-            overflow-y: scroll;
-            height: 500px; /* Adjust the height as necessary */
-        }
-        #report-details {
-            float: right;
-            width: 66%;
-            overflow-y: scroll;
-            height: 500px; /* Adjust the height as necessary */
-        }
-        /* Clear floats */
-        .clear { clear: both; }
-    </style>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     <script>
         function fetchReportDetails(reportId) {
             fetch('/report_details/' + reportId)
@@ -41,24 +26,35 @@
         }
     </script>
 </head>
-<body>
+<body class="body">
     <header class="header">
         <a href="{{ url_for('logout') }}" class="logout-link">Logout</a>
         <nav><a href="{{ url_for('home_page') }}">Return Homepage</a></nav>
     </header>
-    <div id="reports-list">
-        <h1>Reports</h1>
-        <ul>
-            {% for report in reports %}
-            <li onclick="fetchReportDetails({{ report.ReportID }})" style="cursor: pointer;">
-                Report ID: {{ report.ReportID }}
-            </li>
-            {% endfor %}
-        </ul>
+
+    <div class="main-content viewreport">
+        <div class="reports-list">
+            <div class="reports-header">
+                <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Pet Recovery Logo" class="logo report-logo">
+                <h1>Reports</h1>
+            </div>
+            <ul>
+                {% for report, query in reports %}
+                <li class = "report-item" onclick="fetchReportDetails({{ report }})" style="cursor: pointer;">
+                    <strong>Report ID:</strong> {{ report }}<br>
+                    <div class="query-content"><strong>Query:</strong> {{ query }}</div>
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+        <div class="report-details" id="report-details">
+            <!-- Report details will be loaded here -->
+        </div>
     </div>
-    <div id="report-details">
-        <!-- Report details will be loaded here -->
-    </div>
-    <div class="clear"></div>
+    
+    
+    <footer class="footer">
+        @2024 Pet Recovery Veterinary Diagnostic System - By TP055347 APU FYP
+    </footer>
 </body>
 </html>
