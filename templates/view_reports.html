@@ -42,6 +42,10 @@
     </script>
 </head>
 <body>
+    <header class="header">
+        <a href="{{ url_for('logout') }}" class="logout-link">Logout</a>
+        <nav><a href="{{ url_for('home_page') }}">Return Homepage</a></nav>
+    </header>
     <div id="reports-list">
         <h1>Reports</h1>
         <ul>

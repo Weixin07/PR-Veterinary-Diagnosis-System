@@ -23,6 +23,10 @@
     </script>
 </head>
 <body>
+    <header class="header">
+        <a href="{{ url_for('logout') }}" class="logout-link">Logout</a>
+        <nav><a href="{{ url_for('home_page') }}">Return Homepage</a></nav>
+    </header>
     <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Pet Recovery Logo" class="logo login-logo">
     <div class="login-container">
         {% if message %}
