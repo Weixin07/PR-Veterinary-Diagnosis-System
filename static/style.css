@@ -23,16 +23,17 @@ body {
 /* Header styles */
 .header {
     background-color: #FFFFFF;
-    padding: 1%; /* Flexible padding based on the width of the screen */
-    position: fixed;
+    position: relative; /* Removed 'fixed' to keep it in the flow of the document */
+    width: 100%; /* Full width */
     top: 0;
-    left: 0;
-    right: 0; /* Ensure full width */
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     display: flex;
     justify-content: space-between; /* Space between logout link and navigation */
     align-items: center;
-    z-index: 1000;
+    padding: 1%; /* This will ensure that padding is included in height calculation */
+    clear: both; /* Clear any floats */
+    z-index: 2;
+    margin-bottom: -3%; /* Push footer to the bottom */
 }
 
 /* Styles for logout link */
@@ -310,5 +311,48 @@ label {
     align-items: center; /* This already centers horizontally */
     height: 85vh; /* This will take the full height of the viewport */
     box-sizing: border-box; /* Make sure padding doesn't affect the final width/height */
+}
+
+/* Styles specific for edit_case page */
+.edit-case {
+    /* Add the same styling as .veterinarian but for edit-case */
+    width: fit-content;
+    margin: auto; /* Center the container on the page */
+    padding: 2%;
+    background-color: #B88781; /* You can choose a different color if you like */
+    border-radius: 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    box-sizing: border-box; /* Make sure padding doesn't affect the final width/height */
+}
+
+/* Textarea adjustments to match input fields */
+.case-textarea {
+    margin-top: 5%;
+    display: flex; /* Aligns children (label and input) in a row */
+    align-items: center; /* Centers children vertically */
+    margin-bottom: 2%; /* Space between each input field container */
+    width: 100%; /* Make input field take up the entire width of .login-box */
+    font-size: larger;
+    resize: none;
+}
+
+.case-textarea:focus {
+    outline: none;
+    border-color: #B88781; /* Highlight color on focus */
+}
+
+.symptom-list {
+    list-style: none;
+    width: 100%; /* Match the case-container width */
+    padding: 0;
+    margin: 0; /* Removes default margin */
+}
+
+.symptom-item {
+    padding: 2%; /* Padding inside each item */
+    color: #fff; /* Dark text for readability */
+    font-size: larger;
 }
 
