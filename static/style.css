@@ -88,7 +88,9 @@ body {
 
 /* Specific style for login page logo */
 .login-logo {
-    max-width: 10%; /* Customize this value as needed */
+    width: 20%; /* Customize this value as needed */
+    margin-bottom: 5%; /* Space below the logo */
+
 }
 
 /* Specific style for home page logo */
@@ -120,8 +122,12 @@ body {
     border-radius: 10px;
     display: flex;
     flex-direction: column;
-    align-items: center;
+    justify-content: center; /* Add this to center vertically */
+    align-items: center; /* This already centers horizontally */
+    height: 85vh; /* This will take the full height of the viewport */
+    box-sizing: border-box; /* Make sure padding doesn't affect the final width/height */
 }
+
 
 /* Label styling */
 label {
@@ -239,16 +245,6 @@ label {
     background-color: #5E4D4B; /* Button hover color */
 }
 
-.other {
-    font-family: 'Arial', sans-serif;
-    font-size: medium;
-    background-color: #E4CEBF;
-    margin: 0;
-    display: block; /* Changed from flex to block */
-    width: 100%;
-    overflow-y: auto; /* Ensure the body is scrollable */
-}
-
 /* Adjusted case-container for natural document flow */
 .case-container {
     max-width: 100%; /* Maximum width */
@@ -263,6 +259,42 @@ label {
     position: relative; /* Relative positioning */
     z-index: 1; /* Stack order */
 }
+
+/* Adjusted case-container for natural document flow */
+.veterinarian {
+    max-width: 70%; /* Align width with .login-container */
+    margin: auto; /* Center the container on the page */
+    padding: 2%;
+    background-color: #B88781;
+    border-radius: 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+/* This will style the list of cases with similar padding and background as the case-input fields */
+.case-list {
+    list-style: none;
+    width: 100%; /* Match the case-container width */
+    padding: 0;
+    margin: 0; /* Removes default margin */
+  }
+  
+  .case-item {
+    padding: 0.5%; /* Padding inside each item */
+  }
+  
+  .case-link {
+    text-decoration: none; /* Removes underline from links */
+    color: #fff; /* Dark text for readability */
+  }
+  
+  .no-cases-message {
+    background-color: #fff;
+    padding: 10px;
+    border-radius: 5px;
+    text-align: center;
+  }
 
 
 
