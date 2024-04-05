@@ -296,5 +296,19 @@ label {
     text-align: center;
   }
 
-
+/* Login container styles */
+.manageaccount-container {
+    width: 70%;
+    padding: 2%;
+    margin-top: 2%;
+    margin-bottom: -2%;
+    background-color: #E4CEBF;
+    border-radius: 10px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center; /* Add this to center vertically */
+    align-items: center; /* This already centers horizontally */
+    height: 85vh; /* This will take the full height of the viewport */
+    box-sizing: border-box; /* Make sure padding doesn't affect the final width/height */
+}
 
