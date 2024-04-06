@@ -6,6 +6,7 @@ from openai import OpenAI, OpenAIError, RateLimitError, BadRequestError
 from requests.exceptions import HTTPError, Timeout, RequestException
 from cryptography.fernet import Fernet
 import os
+import time
 
 client = OpenAI()
 
@@ -150,7 +151,9 @@ def new_case():
         return redirect(url_for('home_page'))
 
     elif request.method == 'GET':
-        if session['role'] == 'veterinarian':
+        if session['role'] == 'assistant':
+            return render_template('new_case_assistant.html')       
+        elif session['role'] == 'veterinarian':
             queries = QueryResult.query.all()
             app.logger.debug('Number of queries found: %d', len(queries))
             decrypted_queries = []
@@ -200,6 +203,14 @@ def edit_case(query_id):
         try:
             db.session.commit()
             flash('Case updated successfully.', 'success')
+
+            # Call the separate function for API interaction
+            process_query_with_gpt(query_id, updated_query)
+
+            # After API call, create a new report entry
+            new_report = Report(QResultID=query_id)
+            db.session.add(new_report)
+            db.session.commit()
         except Exception as e:
             db.session.rollback()
             app.logger.error(f'Error updating case: {e}')
@@ -209,10 +220,16 @@ def edit_case(query_id):
 
     else:
         symptom_details = decrypted_query.split(', ') if decrypted_query else []
-        return render_template('edit_case.html', query_id=query_id, symptom_details=symptom_details)
+        # Create a query object to pass to the template, including the decrypted Query.
+        query_data = {
+            'QResultID': query_result.QResultID,
+            'Query': decrypted_query,  # Assuming this is the decrypted data to be shown.
+            'UserID': query_result.UserID
+        }
+        return render_template('edit_case.html', query=query_data, symptom_details=symptom_details)
 
 
-def process_query_with_gpt(query_id, query_text):
+def process_query_with_gpt(query_id, query_text, attempt=1, max_attempts=3):
     # Adjusted prompt to clearly define the expected response format
     prompt_for_gpt = (
         "The recipient is a veterinarian, do not worry about using professional terms. "
@@ -242,6 +259,10 @@ def process_query_with_gpt(query_id, query_text):
             if conditions and conditions[0] == '':
                 conditions.pop(0)
 
+            if not conditions or len(conditions) < 3:
+                app.logger.error('Incomplete information for condition received.')
+                raise ValueError('Incomplete data received from GPT.')
+
             for condition in conditions:
                 parts = condition.split('Treatment Suggestion:')
                 if len(parts) < 2:
@@ -254,11 +275,13 @@ def process_query_with_gpt(query_id, query_text):
                     app.logger.error('Missing justification for condition. Skipping.')
                     continue
 
-                name_text = name_justification_parts[0].strip()
-                justification_text = name_justification_parts[1].strip()
-                treatment_reference_parts = parts[1].split('Reference:')
-                treatment_text = treatment_reference_parts[0].strip()
-                reference_text = treatment_reference_parts[1].strip().replace('[', '').replace(']', '')
+                name_text = encrypt_data(name_justification_parts[0].strip())
+                justification_text = encrypt_data(name_justification_parts[1].strip())
+
+                treatment_text, reference_text = parts[1].split('Reference:', 1)
+                treatment_text = encrypt_data(treatment_text.strip())
+                reference_text = encrypt_data(reference_text.strip().replace('[', '').replace(']', ''))
+
 
                 new_condition = MedicalCondition(
                     QResultID=query_id,
@@ -273,6 +296,22 @@ def process_query_with_gpt(query_id, query_text):
     except (OpenAIError, RateLimitError, BadRequestError, HTTPError, Timeout, RequestException) as e:
         db.session.rollback()
         app.logger.error(f'API call failed: {str(e)}')
+    except ValueError as ve:
+        if attempt < max_attempts:
+            app.logger.error(f'Trying again due to incomplete data: Attempt {attempt} of {max_attempts}. Error: {ve}')
+            time.sleep(2)  # Wait for 2 seconds before retrying
+            return process_query_with_gpt(query_id, query_text, attempt + 1, max_attempts)
+        else:
+            app.logger.error(f'Max retry attempts reached with error: {ve}')
+            flash('Could not get complete data from GPT after several attempts.', 'error')
+    except IndexError as ie:
+        if attempt < max_attempts:
+            app.logger.error(f'Trying again due to index error: Attempt {attempt} of {max_attempts}. Error: {ie}')
+            time.sleep(2)  # Wait for 2 seconds before retrying
+            return process_query_with_gpt(query_id, query_text, attempt + 1, max_attempts)
+        else:
+            app.logger.error(f'Max retry attempts reached with error: {ie}')
+            flash('Could not get complete data from GPT after several attempts.', 'error')
     except Exception as e:
         db.session.rollback()
         app.logger.error(f'Unexpected error: {str(e)}')
