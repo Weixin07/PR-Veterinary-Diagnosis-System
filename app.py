@@ -4,6 +4,8 @@ import logging
 from flask_debugtoolbar import DebugToolbarExtension
 from openai import OpenAI, OpenAIError, RateLimitError, BadRequestError
 from requests.exceptions import HTTPError, Timeout, RequestException
+from cryptography.fernet import Fernet
+import os
 
 client = OpenAI()
 
@@ -18,10 +20,62 @@ app.config['DEBUG_TB_INTERCEPT_REDIRECTS'] = False  # Prevents the debug toolbar
 db.init_app(app)
 toolbar = DebugToolbarExtension(app)
 
+##########################################################################
+# Retrieve the Fernet key from the environment variable
+fernet_key = os.environ.get('FERNET_KEY')
+cipher_suite = Fernet(fernet_key)
+
+def encrypt_data(data):
+    """Encrypt the data with Fernet."""
+    return cipher_suite.encrypt(data.encode()).decode()
+
+def decrypt_data(data):
+    """Decrypt the data with Fernet."""
+    return cipher_suite.decrypt(data.encode()).decode()
+
+"""
+# Use these functions wherever you need to encrypt or decrypt data
+
+# An example route that would encrypt data before storing it in the database
+@app.route('/encrypt_data', methods=['POST'])
+def encrypt_data_route():
+    data = request.form.get('data')
+    if not data:
+        flash('No data provided', 'error')
+        return redirect(url_for('some_page'))
+
+    try:
+        encrypted_data = encrypt_data(data)
+        # Here you would typically store encrypted_data in your database
+        # For demonstration, we'll just return it
+        return jsonify({'encrypted': encrypted_data})
+    except Exception as e:
+        flash('Encryption failed: {}'.format(e), 'error')
+        return redirect(url_for('some_page')), 500
+
+# An example route that would decrypt data retrieved from the database
+@app.route('/decrypt_data', methods=['POST'])
+def decrypt_data_route():
+    data = request.form.get('data')
+    if not data:
+        flash('No data provided', 'error')
+        return redirect(url_for('some_page'))
+
+    try:
+        decrypted_data = decrypt_data(data)
+        # Typically, you would do something with decrypted_data here
+        # For demonstration, we'll just return it
+        return jsonify({'decrypted': decrypted_data})
+    except Exception as e:
+        flash('Decryption failed: {}'.format(e), 'error')
+        return redirect(url_for('some_page')), 500
+"""    
+    
 @app.route('/', methods=['GET'])
 def login_page():
     return render_template('login.html')
 
+## use hasing, later
 @app.route('/login', methods=['POST'])
 def login():
     email = request.form['email'].strip()
@@ -63,13 +117,14 @@ def home_page():
         session.clear()
         return redirect(url_for('login_page'))
 
+#### encryption and decryption done ####################################################
 @app.route('/new_case', methods=['GET', 'POST'])
 def new_case():
     if 'role' not in session:
         return redirect(url_for('login_page'))
 
     if request.method == 'POST' and session['role'] == 'assistant':
-         # Collect all form data into a single string
+        # Collect all form data into a single string
         checklist_items = [
             f"activity:{request.form['activity']}",
             f"breathing:{request.form['breathing']}",
@@ -81,27 +136,42 @@ def new_case():
         ]
         query_text = ', '.join(checklist_items)
         
-        new_query = QueryResult(UserID=session['UserID'], Query=query_text)
+        # Encrypt the query text before storing it
+        encrypted_query_text = encrypt_data(query_text)
+        new_query = QueryResult(UserID=session['UserID'], Query=encrypted_query_text)
         db.session.add(new_query)
         try:
             db.session.commit()
-            app.logger.debug('New case added to QueryResults: %s', query_text)
+            flash('New case added successfully.', 'success')
         except Exception as e:
-            app.logger.error('Error in database commit: %s', str(e))
+            flash('Error in database commit: {}'.format(e), 'error')
+            db.session.rollback()
         
         return redirect(url_for('home_page'))
 
     elif request.method == 'GET':
-        if session['role'] == 'assistant':
-            return render_template('new_case_assistant.html')
-        elif session['role'] == 'veterinarian':
-            # Fetch all queries, not just those belonging to the current user
+        if session['role'] == 'veterinarian':
             queries = QueryResult.query.all()
             app.logger.debug('Number of queries found: %d', len(queries))
-            return render_template('new_case_veterinarian.html', queries=queries)
+            decrypted_queries = []
 
+            for q in queries:
+                try:
+                    decrypted_query = decrypt_data(q.Query)
+                    decrypted_queries.append({'QResultID': q.QResultID, 'Query': decrypted_query})
+                    app.logger.debug(f'Query #{q.QResultID} decrypted successfully')
+                    app.logger.debug(f'Query #{decrypted_query} decrypted successfully')
+
+                except Exception as e:
+                    app.logger.error(f'Error decrypting query #{q.QResultID}: {str(e)}')
+                    # Consider whether to append a placeholder or handle individually
+                    decrypted_queries.append({'QResultID': q.QResultID, 'Query': 'Error decrypting data'})
+
+            return render_template('new_case_veterinarian.html', queries=decrypted_queries)    
+    
     return redirect(url_for('home_page'))
 
+#######################now
 @app.route('/edit_case/<int:query_id>', methods=['GET', 'POST'])
 def edit_case(query_id):
     if 'role' not in session or session['role'] != 'veterinarian':
@@ -112,31 +182,35 @@ def edit_case(query_id):
         app.logger.error(f'QueryResult with id {query_id} not found.')
         return "Query not found", 404
 
+    decrypted_query = decrypt_data(query_result.Query)  # Decrypt the query data
+
     if request.method == 'POST':
         additional_info = request.form.get('additional_info', '').strip()
-        # Ensure additional details are appended in a comma-separated format
-        if query_result.Query and additional_info:
-            query_result.Query += f", additional details:{additional_info}"
+        
+        # Append additional details in a comma-separated format and then encrypt again
+        if decrypted_query and additional_info:
+            updated_query = f"{decrypted_query}, additional details:{additional_info}"
         else:
-            query_result.Query = f"additional details:{additional_info}"
-
+            updated_query = f"additional details:{additional_info}"
+        
+        encrypted_query = encrypt_data(updated_query)  # Encrypt the updated query
+        query_result.Query = encrypted_query
         query_result.UserID = session.get('UserID')
-        db.session.add(query_result)
-        db.session.commit()
-
-        # Call the separate function for API interaction
-        process_query_with_gpt(query_id, query_result.Query)
-
-        # After API call, create a new report entry
-        new_report = Report(QResultID=query_id)
-        db.session.add(new_report)
-        db.session.commit()
-
+        
+        try:
+            db.session.commit()
+            flash('Case updated successfully.', 'success')
+        except Exception as e:
+            db.session.rollback()
+            app.logger.error(f'Error updating case: {e}')
+            flash(f'Error updating case: {e}', 'error')
+        
         return redirect(url_for('home_page'))
 
     else:
-        symptom_details = query_result.Query.split(', ') if query_result.Query else []
-        return render_template('edit_case.html', query=query_result, symptom_details=symptom_details)
+        symptom_details = decrypted_query.split(', ') if decrypted_query else []
+        return render_template('edit_case.html', query_id=query_id, symptom_details=symptom_details)
+
 
 def process_query_with_gpt(query_id, query_text):
     # Adjusted prompt to clearly define the expected response format
@@ -326,5 +400,7 @@ def delete_user(user_id):
     # Redirect to the manage users page
     return redirect(url_for('manage_users'))
 
+
+    
 if __name__ == '__main__':
     app.run(debug=True)
