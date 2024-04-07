@@ -174,7 +174,7 @@ def new_case():
     
     return redirect(url_for('home_page'))
 
-#######################now
+##################################################done###############################################################################
 @app.route('/edit_case/<int:query_id>', methods=['GET', 'POST'])
 def edit_case(query_id):
     if 'role' not in session or session['role'] != 'veterinarian':
@@ -316,15 +316,24 @@ def process_query_with_gpt(query_id, query_text, attempt=1, max_attempts=3):
         db.session.rollback()
         app.logger.error(f'Unexpected error: {str(e)}')
 
+########################################end###############################################################################
+
+#######################now!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 @app.route('/view_reports')
 def view_reports():
     # Perform a join between Report and QueryResult based on QResultID
-    reports_with_queries = db.session.query(
+    reports_with_queries_raw = db.session.query(
         Report.ReportID,
         QueryResult.Query
     ).join(QueryResult, Report.QResultID == QueryResult.QResultID).all()
 
-    # Pass the joined data to the template
+    # Decrypt the Query data
+    reports_with_queries = [
+        (ReportID, decrypt_data(Query))
+        for ReportID, Query in reports_with_queries_raw
+    ]
+
+    # Pass the decrypted data to the template
     return render_template('view_reports.html', reports=reports_with_queries)
 
 @app.route('/report_details/<int:report_id>', methods=['GET'])
@@ -333,10 +342,10 @@ def report_details(report_id):
     if report:
         medical_conditions = MedicalCondition.query.filter_by(QResultID=report.QResultID).all()
         medical_conditions_data = [{
-            'name': condition.Name,
-            'justification': condition.justification,
-            'treatment': condition.TreatmentSuggestion,
-            'reference': condition.Reference
+            'name': decrypt_data(condition.Name),
+            'justification': decrypt_data(condition.justification),
+            'treatment': decrypt_data(condition.TreatmentSuggestion),
+            'reference': decrypt_data(condition.Reference)
         } for condition in medical_conditions]
 
         return jsonify(medical_conditions_data)
