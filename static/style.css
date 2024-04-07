@@ -82,6 +82,10 @@ body {
   padding-left: 21%; /* Slightly more than the image width to ensure space */
 }
 
+.documentation-section {
+  width: 95%;
+}
+
 /* Logo styles */
 .logo {
   margin-bottom: 2%;

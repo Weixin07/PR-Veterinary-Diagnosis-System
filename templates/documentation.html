@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='style.css') }}"
+    />
+    <title>User Documentation</title>
+  </head>
+  <body>
+    <header class="header">
+      <nav><a href="{{ url_for('login_page') }}">Return to Login Page</a></nav>
+    </header>
+
+    <img
+      src="{{ url_for('static', filename='images/logo.png') }}"
+      alt="Pet Recovery Logo"
+      class="logo home-logo"
+    />
+
+    <main class="body-content">
+      <section class="documentation-section">
+        <h1>User Documentation</h1>
+        <p><strong>Date:</strong> 8/4/2024</p>
+        <p><strong>Version:</strong> 1.0</p>
+      </section>
+
+      <section class="documentation-section">
+        <h2>Table of Contents</h2>
+        <ol>
+          <li><a href="#introduction">Introduction</a></li>
+          <li><a href="#system-requirements">System Requirements</a></li>
+          <li>
+            <a href="#getting-started">Getting Started</a>
+            <ol>
+              <li>
+                <a href="#accessing-login-page">Accessing the Login Page</a>
+              </li>
+              <li><a href="#logging-in">Logging In</a></li>
+              <li>
+                <a href="#navigating-home-page">Navigating the Home Page</a>
+              </li>
+            </ol>
+          </li>
+          <li>
+            <a href="#feature-guide">Feature Guide</a>
+            <ol>
+              <li><a href="#managing-new-cases">Managing New Cases</a></li>
+              <li>
+                <a href="#editing-existing-cases">Editing Existing Cases</a>
+              </li>
+              <li><a href="#viewing-reports">Viewing Reports</a></li>
+              <li>
+                <a href="#managing-user-accounts">Managing User Accounts</a>
+              </li>
+              <li><a href="#adding-new-users">Adding New Users</a></li>
+              <li>
+                <a href="#updating-user-information"
+                  >Updating User Information</a
+                >
+              </li>
+              <li><a href="#deleting-users">Deleting Users</a></li>
+            </ol>
+          </li>
+          <li>
+            <a href="#troubleshooting-and-support"
+              >Troubleshooting and Support</a
+            >
+          </li>
+          <li>
+            <a href="#frequently-asked-questions">Frequently Asked Questions</a>
+          </li>
+          <li><a href="#glossary">Glossary</a></li>
+          <li>
+            <a href="#contact-information-and-support"
+              >Contact Information and Support</a
+            >
+          </li>
+        </ol>
+      </section>
+
+      <section class="documentation-section" id="introduction">
+        <h2>1. Introduction</h2>
+        <p>Welcome to the Pet Recovery Veterinary Diagnostic System!</p>
+        <p>
+          This system is designed to provide a seamless experience for managing
+          veterinary cases, including diagnostic reports, case tracking, and
+          user management. Our platform offers an intuitive interface that
+          caters to veterinarians, assistants, and administrative staff,
+          enabling efficient workflow and improved patient care.
+        </p>
+        <h3>System Overview</h3>
+        <ul>
+          <li>
+            New Case Management: Assistants can enter new pet cases, recording
+            essential health parameters for further diagnosis.
+          </li>
+          <li>
+            Case Editing and Review: Veterinarians have the ability to review
+            and add additional information to ongoing cases.
+          </li>
+          <li>
+            Report Generation and Viewing: Users can view detailed reports
+            containing diagnostic results and treatment suggestions.
+          </li>
+          <li>
+            User Account Management: Administrators can add, update, and delete
+            user accounts, as well as manage their own account details.
+          </li>
+        </ul>
+      </section>
+
+      <section class="documentation-section" id="system-requirements">
+        <h2>2. System Requirements</h2>
+        <ul>
+          <li>
+            Supported Browsers: Google Chrome (latest version), Mozilla Firefox
+            (latest version), Safari (latest version), Microsoft Edge (latest
+            version).
+          </li>
+          <li>
+            Internet Connection: A stable internet connection is required for
+            system access and functionality.
+          </li>
+          <li>
+            Screen Resolution: A minimum screen resolution of 1280x768 is
+            recommended for the best visual experience.
+          </li>
+          <li>
+            Credentials: Valid login credentials provided by your system
+            administrator.
+          </li>
+        </ul>
+      </section>
+
+      <section class="documentation-section" id="getting-started">
+        <h2>3. Getting Started</h2>
+        <h3 id="accessing-login-page">Accessing the Login Page</h3>
+        <p>
+          To start using the Pet Recovery Veterinary Diagnostic System, open
+          your web browser and navigate to the system's login URL. Bookmark this
+          page for future quick access.
+        </p>
+        <h3 id="logging-in">Logging In</h3>
+        <ol>
+          <li>
+            Enter Email: Type in your assigned email address in the 'Email'
+            field.
+          </li>
+          <li>
+            Enter Password: Input your password in the 'Password' field. Click
+            on the 'eye' icon to toggle password visibility if needed.
+          </li>
+          <li>Sign In: Click the 'Login' button to access the system.</li>
+        </ol>
+        <p>
+          If you encounter any login issues, please consult the
+          'Troubleshooting' section or contact your system administrator.
+        </p>
+      </section>
+
+      <!-- Feature Guide Section -->
+      <section class="documentation-section" id="feature-guide">
+        <h2>4. Feature Guides</h2>
+
+        <!-- Managing New Cases -->
+        <h3 id="managing-new-cases">4.1 Managing New Cases</h3>
+        <p>For Assistants:</p>
+        <ol>
+          <li>
+            Access New Case Form: From the home page, click on the 'New Case'
+            link.
+          </li>
+          <li>
+            Fill Out Case Details: Enter all the required information in the
+            respective fields.
+          </li>
+          <li>
+            Submit Case: After reviewing the details, click the 'Submit Case'
+            button.
+          </li>
+        </ol>
+        <p>Fields Explained:</p>
+        <ul>
+          <li>
+            Activity: Describe the pet's current level of activity. This can
+            range from lethargic or non-responsive to hyperactive. Note any
+            changes from the pet's normal behaviour.
+          </li>
+          <li>
+            Breathing: Observe the pet's breathing and note any irregularities,
+            such as difficulty breathing, rapid breathing, or any noises
+            associated with breathing.
+          </li>
+          <li>
+            Eye Condition: Examine the pet's eyes for signs of redness,
+            discharge, cloudiness, or other abnormalities. Include details such
+            as the colour and consistency of any discharge.
+          </li>
+          <li>
+            Discharge: Note the presence of any discharge from the nose, eyes,
+            ears, or other body parts. Describe the colour, texture, and any
+            associated odour.
+          </li>
+          <li>
+            Diet & Weight: Record any changes in appetite or weight. Mention
+            whether the pet has been eating more, less, or refusing food, and
+            note any recent weight loss or gain.
+          </li>
+          <li>
+            Skin & Coat Condition: Check the condition of the skin and fur. Look
+            for signs of itching, flaking, redness, lumps, or unusual hair loss.
+          </li>
+          <li>
+            Ear Condition: Describe the appearance of the inside of the ears.
+            Note any redness, swelling, discharge, or odour, and indicate if the
+            pet shows discomfort during the examination.
+          </li>
+        </ul>
+
+        <!-- Editing Existing Cases -->
+        <h3 id="editing-existing-cases">4.2 Editing Existing Cases</h3>
+        <p>For Veterinarians:</p>
+        <ol>
+          <li>
+            Choose a Case: From the 'Case Review' section, click on the case you
+            wish to edit.
+          </li>
+          <li>
+            Add Information: Enter any additional observations or test results.
+          </li>
+          <li>
+            Update Case: Click the 'Update Case' button to save your changes.
+          </li>
+        </ol>
+
+        <!-- Viewing Reports -->
+        <h3 id="viewing-reports">4.3 Viewing Reports</h3>
+        <p>For All Users:</p>
+        <ol>
+          <li>
+            Navigate to Reports: Select 'View Reports' from the home page.
+          </li>
+          <li>
+            Select a Report: Click on the 'Report ID' that corresponds to the
+            case you wish to review.
+          </li>
+          <li>
+            Review Details: The detailed report will display, providing insights
+            into the medical conditions, justifications, treatment suggestions,
+            and references.
+          </li>
+        </ol>
+      </section>
+
+      <!-- Managing User Accounts -->
+      <section class="documentation-section">
+        <h3 id="managing-user-accounts">4.4 Managing User Accounts</h3>
+        <p>For Administrators:</p>
+        <ol>
+          <li>
+            Access Management: From the admin home page, select 'Manage Users'.
+          </li>
+          <li>
+            Edit User Details: Click 'Update' next to a user to change their
+            email or role.
+          </li>
+          <li>
+            Save Changes: After editing, click the 'Update' button within the
+            form to apply changes.
+          </li>
+        </ol>
+      </section>
+
+      <!-- Adding New Users -->
+      <section class="documentation-section">
+        <h3 id="adding-new-users">4.5 Adding New Users</h3>
+        <p>For Administrators:</p>
+        <ol>
+          <li>
+            Open the Add User Form: Click on 'Add User' from the admin home
+            page.
+          </li>
+          <li>
+            Enter User Information: Fill in the email, password, and assign a
+            role.
+          </li>
+          <li>
+            Create Account: Press the 'Add User' button to create the new user
+            account.
+          </li>
+        </ol>
+      </section>
+
+      <!-- Updating User Information -->
+      <section class="documentation-section">
+        <h3 id="updating-user-information">4.6 Updating User Information</h3>
+        <p>For Administrators:</p>
+        <ol>
+          <li>
+            Find the User: In the 'Manage Users' section, locate the user whose
+            information needs to be updated.
+          </li>
+          <li>
+            Make Edits: Click on 'Update' to modify email or role details.
+          </li>
+          <li>
+            Confirm Changes: Submit the form to save the new user details.
+          </li>
+        </ol>
+      </section>
+
+      <!-- Deleting Users -->
+      <section class="documentation-section">
+        <h3 id="deleting-users">4.7 Deleting Users</h3>
+        <p>For Administrators:</p>
+        <ol>
+          <li>
+            Locate the User: In the 'Update & Delete Users' list, find the user
+            to be deleted.
+          </li>
+          <li>
+            Delete User: Click the 'Delete' button associated with the user's
+            row.
+          </li>
+          <li>
+            Confirm Deletion: A prompt will appear; confirm to proceed with user
+            removal.
+          </li>
+        </ol>
+      </section>
+
+      <!-- Troubleshooting and Support -->
+      <section class="documentation-section" id="troubleshooting-and-support">
+        <h2>5. Troubleshooting and Support</h2>
+        <p>
+          Encountered a problem? Here are some common issues and quick fixes:
+        </p>
+        <ul>
+          <li>
+            Login Issues: Ensure caps lock is off and credentials are entered
+            correctly. If issues persist, reset your password or contact an
+            admin.
+          </li>
+          <li>
+            Browser Compatibility: If the system isn't displaying correctly, try
+            updating your browser or switching to a different one.
+          </li>
+          <li>
+            Connection Errors: Check your internet connection or try refreshing
+            the page.
+          </li>
+        </ul>
+        <p>
+          Still need help? Don't hesitate to reach out to our support team via
+          <a href="#contact-information-and-support"
+            >Contact Information and Support</a
+          >
+        </p>
+      </section>
+
+      <!-- Frequently Asked Questions -->
+      <section class="documentation-section" id="frequently-asked-questions">
+        <h2>6. FAQ</h2>
+        <p>Q: Can I access the system from my mobile device?</p>
+        <p>
+          A: The system is best viewed on a desktop. While it may be accessible
+          via a mobile browser, some features may not be fully supported.
+        </p>
+
+        <p>Q: How secure is my data within the system?</p>
+        <p>A: We understand the importance of data security, especially when it comes to sensitive medical information. Our system employs several layers of security to ensure that your data is protected at all times:</p>
+        <ul>
+            <li>
+                <strong>Encryption:</strong> All sensitive data within the system is encrypted using advanced encryption standards. We use Fernet encryption, which is a symmetric encryption method that ensures that data such as passwords, medical reports, and personal information cannot be read by unauthorized parties.
+            </li>
+            <li>
+                <strong>Secure Transmission:</strong> Data sent between your device and our servers is encrypted using SSL/TLS protocols. This means that even during transmission, your data is secure and protected against eavesdropping and man-in-the-middle attacks.
+            </li>
+            <li>
+                <strong>Access Control:</strong> Users are only granted access to the parts of the system that are relevant to their role. For example, assistants have different access rights compared to veterinarians or administrative staff.
+            </li>
+            <li>
+                <strong>Audit Trails:</strong> All activity within the system is logged, creating an audit trail that can be reviewed in case of security incidents. This helps in ensuring accountability and tracing any changes made to the data.
+            </li>
+        </ul>
+    </section>
+      </section>
+
+      <!-- Glossary -->
+      <section class="documentation-section" id="glossary">
+        <h2>7. Glossary</h2>
+        <p>
+          Query: In the context of our system, a query refers to the detailed
+          information entered about a pet's condition, symptoms, and observed
+          behaviours, which is used to facilitate diagnosis and treatment
+          planning.
+        </p>
+        <p>Fernet: A system of symmetric encryption used to ensure the security and privacy of data within the system. It encrypts data in such a way that it can only be decrypted by an entity with the correct key, thus protecting sensitive information from unauthorized access.</p>
+        <p>SSL/TLS Protocols: Secure Socket Layer (SSL) and Transport Layer Security (TLS) are cryptographic protocols designed to provide communications security over a computer network. In our system, these protocols encrypt data in transit between the user's device and our servers, safeguarding it from interception.</p>
+        <p>Symmetric Encryption: A type of encryption where the same key is used for both encryption and decryption of data. This method is used by Fernet, ensuring that data can be securely stored and accessed only by authorized parties.</p>
+        <p>Audit Trail: A record showing who has accessed the system and what actions they have taken during their session. This is crucial for security, compliance, and operational integrity, providing a way to trace any changes or accesses to sensitive data.</p>
+        <p>Role-Based Access Control (RBAC): A method of restricting system access to authorized users based on their role within the organization. Different roles have different levels of access to information and functionalities within the system.</p>
+        <p>Encryption Key: A piece of information that determines the output of a cryptographic algorithm. In encryption, a key specifies the particular transformation of plaintext into ciphertext, or vice versa during decryption.</p>
+        <p>Ciphertext: Data that has been transformed from plaintext into an unreadable format through encryption, ensuring that only authorized parties can decipher and understand it.</p>     
+        </section>
+
+      <!-- Contact Information and Support -->
+      <section
+        class="documentation-section"
+        id="contact-information-and-support"
+      >
+        <h2>8. Contact Information and Support</h2>
+        <p>For any additional help or inquiries, please contact:</p>
+        <ul>
+          <li>Support Email: petrecoveryveterinary@gmail.com</li>
+          <li>Phone Number: 03-3358 1764 | 010-922 8033</li>
+          <li>Operating Hours: Everyday, except Tuesday (10am – 7pm)</li>
+        </ul>
+      </section>
+    </main>
+
+    <footer class="footer">
+      @2024 Pet Recovery Veterinary Diagnostic System - By TP055347 APU FYP
+    </footer>
+  </body>
+</html>

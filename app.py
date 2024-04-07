@@ -51,6 +51,9 @@ def decrypt_data(data):
 def login_page():
     return render_template("login.html")
 
+@app.route("/documentation", methods=["GET"])
+def documentation():
+    return render_template("documentation.html")
 
 ## use hasing, later
 @app.route("/login", methods=["POST"])
