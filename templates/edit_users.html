@@ -31,20 +31,25 @@
         <tbody>
           {% for user in users %}
           <tr>
-            <td>{{ user.email }}</td>
-            <td>{{ user.role }}</td>
             <td>
-              <form
-                method="post"
-                action="{{ url_for('update_user', user_id=user.id) }}"
-              >
-                <input type="hidden" name="email" value="{{ user.email }}" />
-                <input type="hidden" name="role" value="{{ user.role }}" />
+              <form method="post" action="{{ url_for('update_user', user_id=user.id) }}" class="inline-form">
+                <input type="email" name="email" value="{{ user.email }}" required/>
+            </td>
+            <td>
+              <select name="role" required>
+                <option value="admin" {{ 'selected' if user.role.lower() == 'admin' else '' }}>Admin</option>
+                <option value="veterinarian" {{ 'selected' if user.role.lower() == 'veterinarian' else '' }}>Veterinarian</option>
+                <option value="assistant" {{ 'selected' if user.role.lower() == 'assistant' else '' }}>Assistant</option>
+                <!-- Add more roles as needed -->
+              </select>
+            </td>
+            <td>
                 <button type="submit">Update</button>
               </form>
               <form
                 method="post"
                 action="{{ url_for('delete_user', user_id=user.id) }}"
+                class="inline-form"
               >
                 <button type="submit">Delete</button>
               </form>

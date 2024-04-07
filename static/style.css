@@ -61,7 +61,6 @@ body {
 .main-content {
   flex: 1; /* forces the main content to expand */
   width: 100%; /* ensure it takes up full width */
-  /* Add padding-top if there is a fixed header to push the content down */
 }
 
 .footer {
@@ -97,10 +96,10 @@ body {
 
 /* Specific style for home page logo */
 .home-logo {
-  max-width: 5%; /* Customize this value as needed */
+  max-width: 10%; /* Customize this value as needed */
   position: absolute;
   top: 12%; /* Flexible top position based on the height of the viewport */
-  left: 1%;
+  left: 3%;
   object-fit: contain; /* Keeps the image's aspect ratio */
 }
 
@@ -437,7 +436,7 @@ label {
   position: relative; /* Relative positioning */
   z-index: 1; /* Stack order */
   justify-content: center; /* Center items horizontally */
-  margin-top: 5%; /* Adjust as needed */
+  height: 85vh;
 }
 
 .admin-container nav {
@@ -532,7 +531,5 @@ td {
 
 /* Table row hover styling */
 tbody tr:hover {
-    background-color: #5e4d4b; /* This is the color the row will change to when you hover over it */
-  }
-
-
+  background-color: #5e4d4b; /* This is the color the row will change to when you hover over it */
+}
