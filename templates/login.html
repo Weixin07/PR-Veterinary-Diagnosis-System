@@ -1,51 +1,66 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
+  <head>
+    <meta charset="UTF-8" />
     <title>Login</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='style.css') }}"
+    />
     <script>
-        window.onload = function() {
-            document.getElementById('togglePassword').addEventListener('click', togglePassword);
-        };
+      window.onload = function () {
+        document
+          .getElementById("togglePassword")
+          .addEventListener("click", togglePassword);
+      };
 
-        function togglePassword() {
-            var passwordInput = document.getElementById('password');
-            var toggleBtn = document.getElementById('togglePassword');
-            if (passwordInput.type === 'password') {
-                passwordInput.type = 'text';
-                toggleBtn.src = "{{ url_for('static', filename='images/open.png') }}"; // Change to 'eye' icon for open
-            } else {
-                passwordInput.type = 'password';
-                toggleBtn.src = "{{ url_for('static', filename='images/close.png') }}"; // Change back to 'eye slash' icon for close
-            }
+      function togglePassword() {
+        var passwordInput = document.getElementById("password");
+        var toggleBtn = document.getElementById("togglePassword");
+        if (passwordInput.type === "password") {
+          passwordInput.type = "text";
+          toggleBtn.src = "{{ url_for('static', filename='images/open.png') }}"; // Change to 'eye' icon for open
+        } else {
+          passwordInput.type = "password";
+          toggleBtn.src =
+            "{{ url_for('static', filename='images/close.png') }}"; // Change back to 'eye slash' icon for close
         }
+      }
     </script>
-</head>
-<body>
+  </head>
+  <body>
     <div class="login-container">
-        <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Pet Recovery Logo" class="logo login-logo">
+      <img
+        src="{{ url_for('static', filename='images/logo.png') }}"
+        alt="Pet Recovery Logo"
+        class="logo login-logo"
+      />
 
-        {% if error %}
-        <p class="error-message">{{ error }}</p>
-        {% endif %}
-        <form action="/login" method="post">
-            <div class="input-field">
-                <label for="email">Email:</label>
-                <input type="email" name="email" required>
-            </div>
-            <div class="input-field">
-                <label for="password">Password:</label>
-                <input type="password" id="password" name="password" required>
-                <img src="{{ url_for('static', filename='images/close.png') }}" alt="Toggle Password Visibility" id="togglePassword" class="toggle-password">
-            </div>
-            <div class="login-button-container">
-                <button type="submit" class="login-button">Login</button>
-            </div>        
-        </form>
+      {% if error %}
+      <p class="error-message">{{ error }}</p>
+      {% endif %}
+      <form action="/login" method="post">
+        <div class="input-field">
+          <label for="email">Email:</label>
+          <input type="email" name="email" required />
+        </div>
+        <div class="input-field">
+          <label for="password">Password:</label>
+          <input type="password" id="password" name="password" required />
+          <img
+            src="{{ url_for('static', filename='images/close.png') }}"
+            alt="Toggle Password Visibility"
+            id="togglePassword"
+            class="toggle-password"
+          />
+        </div>
+        <div class="login-button-container">
+          <button type="submit" class="login-button">Login</button>
+        </div>
+      </form>
     </div>
     <footer class="footer">
-        @2024 Pet Recovery Veterinary Diagnostic System - By TP055347 APU FYP
+      @2024 Pet Recovery Veterinary Diagnostic System - By TP055347 APU FYP
     </footer>
-</body>
+  </body>
 </html>

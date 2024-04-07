@@ -1,17 +1,20 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
+  <head>
+    <meta charset="UTF-8" />
     <title>View Reports</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='style.css') }}"
+    />
     <script>
-        function fetchReportDetails(reportId) {
-            fetch('/report_details/' + reportId)
-            .then(response => response.json())
-            .then(data => {
-                let detailsHtml = `<h2>Details for Report ${reportId}</h2>`;
-                data.forEach((condition, index) => {
-                    detailsHtml += `
+      function fetchReportDetails(reportId) {
+        fetch("/report_details/" + reportId)
+          .then((response) => response.json())
+          .then((data) => {
+            let detailsHtml = `<h2>Details for Report ${reportId}</h2>`;
+            data.forEach((condition, index) => {
+              detailsHtml += `
                         <div>
                             <h3><strong>Name:</strong> ${condition.name}</h3>
                             <p><strong>Justification:</strong> ${condition.justification}</p>
@@ -19,42 +22,49 @@
                             <p><strong>Reference:</strong> <a href="${condition.reference}" target="_blank">Source</a></p>
                         </div>
                     `;
-                });
-                document.getElementById('report-details').innerHTML = detailsHtml;
-            })
-            .catch(error => console.error('Error:', error));
-        }
+            });
+            document.getElementById("report-details").innerHTML = detailsHtml;
+          })
+          .catch((error) => console.error("Error:", error));
+      }
     </script>
-</head>
-<body class="body">
+  </head>
+  <body class="body">
     <header class="header">
-        <a href="{{ url_for('logout') }}" class="logout-link">Logout</a>
-        <nav><a href="{{ url_for('home_page') }}">Return Homepage</a></nav>
+      <a href="{{ url_for('logout') }}" class="logout-link">Logout</a>
+      <nav><a href="{{ url_for('home_page') }}">Return Homepage</a></nav>
     </header>
 
     <div class="main-content viewreport">
-        <div class="reports-list">
-            <div class="reports-header">
-                <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Pet Recovery Logo" class="logo report-logo">
-                <h1>Reports</h1>
-            </div>
-            <ul>
-                {% for report, query in reports %}
-                <li class = "report-item" onclick="fetchReportDetails({{ report }})" style="cursor: pointer;">
-                    <strong>Report ID:</strong> {{ report }}<br>
-                    <div class="query-content"><strong>Query:</strong> {{ query }}</div>
-                </li>
-                {% endfor %}
-            </ul>
+      <div class="reports-list">
+        <div class="reports-header">
+          <img
+            src="{{ url_for('static', filename='images/logo.png') }}"
+            alt="Pet Recovery Logo"
+            class="logo report-logo"
+          />
+          <h1>Reports</h1>
         </div>
-        <div class="report-details" id="report-details">
-            <!-- Report details will be loaded here -->
-        </div>
+        <ul>
+          {% for report, query in reports %}
+          <li
+            class="report-item"
+            onclick="fetchReportDetails({{ report }})"
+            style="cursor: pointer"
+          >
+            <strong>Report ID:</strong> {{ report }}<br />
+            <div class="query-content"><strong>Query:</strong> {{ query }}</div>
+          </li>
+          {% endfor %}
+        </ul>
+      </div>
+      <div class="report-details" id="report-details">
+        <!-- Report details will be loaded here -->
+      </div>
     </div>
-    
-    
+
     <footer class="footer">
-        @2024 Pet Recovery Veterinary Diagnostic System - By TP055347 APU FYP
+      @2024 Pet Recovery Veterinary Diagnostic System - By TP055347 APU FYP
     </footer>
-</body>
+  </body>
 </html>

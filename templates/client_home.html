@@ -1,29 +1,38 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <head>
+    <meta charset="UTF-8" />
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='style.css') }}"
+    />
     <title>Veterinarian & Veterinary Assistant Home</title>
-</head>
-<body>
+  </head>
+  <body>
     <header class="header">
-        <a href="{{ url_for('logout') }}" class="logout-link">Logout</a>
-        <nav>
-            <a href="{{ url_for('view_reports') }}">View Reports</a> <a href="{{ url_for('new_case') }}">New Case</a> <a href="{{ url_for('manage_account') }}">Manage Account</a>
-            <!-- Additional navigation links can be added here -->
-        </nav>
+      <a href="{{ url_for('logout') }}" class="logout-link">Logout</a>
+      <nav>
+        <a href="{{ url_for('view_reports') }}">View Reports</a>
+        <a href="{{ url_for('new_case') }}">New Case</a>
+        <a href="{{ url_for('manage_account') }}">Manage Account</a>
+        <!-- Additional navigation links can be added here -->
+      </nav>
     </header>
-    
+
     <!-- Image below navigation -->
-    <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Pet Recovery Logo" class="logo home-logo">
-    
+    <img
+      src="{{ url_for('static', filename='images/logo.png') }}"
+      alt="Pet Recovery Logo"
+      class="logo home-logo"
+    />
+
     <!-- Additional content should start from here -->
     <div class="body-content">
-        <!-- Content goes here -->
+      <!-- Content goes here -->
     </div>
 
     <footer class="footer">
-        @2024 Pet Recovery Veterinary Diagnostic System - By TP055347 APU FYP
+      @2024 Pet Recovery Veterinary Diagnostic System - By TP055347 APU FYP
     </footer>
-</body>
+  </body>
 </html>

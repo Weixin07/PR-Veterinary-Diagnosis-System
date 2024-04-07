@@ -1,39 +1,50 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
+  <head>
+    <meta charset="UTF-8" />
     <title>Case Review - Veterinarian</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-</head>
-<body class="body">
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='style.css') }}"
+    />
+  </head>
+  <body class="body">
     <header class="header">
-        <a href="{{ url_for('logout') }}" class="logout-link">Logout</a>
-        <nav><a href="{{ url_for('home_page') }}">Return Homepage</a></nav>
+      <a href="{{ url_for('logout') }}" class="logout-link">Logout</a>
+      <nav><a href="{{ url_for('home_page') }}">Return Homepage</a></nav>
     </header>
 
     <div class="main-content">
-        <div class="case-container">
-            <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Pet Recovery Logo" class="logo other-logo">
-            <div class="case-container veterinarian">
-                {% if queries %}
-                    <ul class="case-list">
-                        {% for query in queries %}
-                            <li class="case-item">
-                                <a href="{{ url_for('edit_case', query_id=query.QResultID) }}" class="case-link">
-                                    Case #{{ query.QResultID }}: {{ query.Query }} <!-- Removed slicing to show full text -->
-                                </a>
-                            </li>
-                        {% endfor %}
-                    </ul>
-                {% else %}
-                    <p class="no-cases-message">No cases to review.</p>
-                {% endif %}
-            </div>
+      <div class="case-container">
+        <img
+          src="{{ url_for('static', filename='images/logo.png') }}"
+          alt="Pet Recovery Logo"
+          class="logo other-logo"
+        />
+        <div class="case-container veterinarian">
+          {% if queries %}
+          <ul class="case-list">
+            {% for query in queries %}
+            <li class="case-item">
+              <a
+                href="{{ url_for('edit_case', query_id=query.QResultID) }}"
+                class="case-link"
+              >
+                Case #{{ query.QResultID }}: {{ query.Query }}
+                <!-- Removed slicing to show full text -->
+              </a>
+            </li>
+            {% endfor %}
+          </ul>
+          {% else %}
+          <p class="no-cases-message">No cases to review.</p>
+          {% endif %}
         </div>
+      </div>
     </div>
 
     <footer class="footer">
-        @2024 Pet Recovery Veterinary Diagnostic System - By TP055347 APU FYP
+      @2024 Pet Recovery Veterinary Diagnostic System - By TP055347 APU FYP
     </footer>
-</body>
+  </body>
 </html>

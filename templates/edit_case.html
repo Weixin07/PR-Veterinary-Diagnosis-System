@@ -1,44 +1,59 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
+  <head>
+    <meta charset="UTF-8" />
     <title>Edit Case - Veterinarian</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-</head>
-<body class="body">
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='style.css') }}"
+    />
+  </head>
+  <body class="body">
     <header class="header">
-        <a href="{{ url_for('logout') }}" class="logout-link">Logout</a>
-        <nav><a href="{{ url_for('home_page') }}">Return Homepage</a></nav>
+      <a href="{{ url_for('logout') }}" class="logout-link">Logout</a>
+      <nav><a href="{{ url_for('home_page') }}">Return Homepage</a></nav>
     </header>
 
     <div class="main-content">
-        <div class="case-container">
-            <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Pet Recovery Logo" class="logo other-logo">
-            
-            <div class="case-container edit-case">
-                <form action="{{ url_for('edit_case', query_id=query.QResultID) }}" method="post">
-                        {% if query.Query %}
-                            <ul class="symptom-list">
-                                {% for item in query.Query.split(', ') %}
-                                    <li class="symptom-item">{{ item }}</li>
-                                {% endfor %}
-                            </ul>
-                        {% else %}
-                            <p>No symptoms details provided.</p>
-                        {% endif %}
-                    <div class="input-field">
-                        <textarea name="additional_info" placeholder=" Add further details here" required class="case-textarea"></textarea>
-                    </div>
-                    <div class="login-button-container">
-                        <button type="submit" class="new-case-button">Update Case</button>
-                    </div>
-                </form>
+      <div class="case-container">
+        <img
+          src="{{ url_for('static', filename='images/logo.png') }}"
+          alt="Pet Recovery Logo"
+          class="logo other-logo"
+        />
+
+        <div class="case-container edit-case">
+          <form
+            action="{{ url_for('edit_case', query_id=query.QResultID) }}"
+            method="post"
+          >
+            {% if query.Query %}
+            <ul class="symptom-list">
+              {% for item in query.Query.split(', ') %}
+              <li class="symptom-item">{{ item }}</li>
+              {% endfor %}
+            </ul>
+            {% else %}
+            <p>No symptoms details provided.</p>
+            {% endif %}
+            <div class="input-field">
+              <textarea
+                name="additional_info"
+                placeholder=" Add further details here"
+                required
+                class="case-textarea"
+              ></textarea>
             </div>
+            <div class="login-button-container">
+              <button type="submit" class="new-case-button">Update Case</button>
+            </div>
+          </form>
         </div>
+      </div>
     </div>
 
     <footer class="footer">
-        @2024 Pet Recovery Veterinary Diagnostic System - By TP055347 APU FYP
+      @2024 Pet Recovery Veterinary Diagnostic System - By TP055347 APU FYP
     </footer>
-</body>
+  </body>
 </html>

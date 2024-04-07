@@ -1,52 +1,61 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
+  <head>
+    <meta charset="UTF-8" />
     <title>Manage Users</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-</head>
-<body>
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='style.css') }}"
+    />
+  </head>
+  <body>
     <header class="header">
-        <a href="{{ url_for('logout') }}" class="logout-link">Logout</a>
-        <nav><a href="{{ url_for('home_page') }}">Return Homepage</a></nav>
+      <a href="{{ url_for('logout') }}" class="logout-link">Logout</a>
+      <nav><a href="{{ url_for('home_page') }}">Return Homepage</a></nav>
     </header>
     <div class="user-table">
-        <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Pet Recovery Logo" class="logo other-logo">
+      <img
+        src="{{ url_for('static', filename='images/logo.png') }}"
+        alt="Pet Recovery Logo"
+        class="logo other-logo"
+      />
 
-        <table>
-            <thead>
-                <tr>
-                    <th>Email</th>
-                    <th>Role</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for user in users %}
-                <tr>
-                    <td>
-                        {{ user.email }}
-                    </td>
-                    <td>
-                        {{ user.role }}
-                    </td>
-                    <td>
-                        <form method="post" action="{{ url_for('update_user', user_id=user.id) }}">
-                            <input type="hidden" name="email" value="{{ user.email }}">
-                            <input type="hidden" name="role" value="{{ user.role }}">
-                            <button type="submit">Update</button>
-                        </form>
-                        <form method="post" action="{{ url_for('delete_user', user_id=user.id) }}">
-                            <button type="submit">Delete</button>
-                        </form>
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+      <table>
+        <thead>
+          <tr>
+            <th>Email</th>
+            <th>Role</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for user in users %}
+          <tr>
+            <td>{{ user.email }}</td>
+            <td>{{ user.role }}</td>
+            <td>
+              <form
+                method="post"
+                action="{{ url_for('update_user', user_id=user.id) }}"
+              >
+                <input type="hidden" name="email" value="{{ user.email }}" />
+                <input type="hidden" name="role" value="{{ user.role }}" />
+                <button type="submit">Update</button>
+              </form>
+              <form
+                method="post"
+                action="{{ url_for('delete_user', user_id=user.id) }}"
+              >
+                <button type="submit">Delete</button>
+              </form>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
     </div>
     <footer class="footer">
-        @2024 Pet Recovery Veterinary Diagnostic System - By TP055347 APU FYP
+      @2024 Pet Recovery Veterinary Diagnostic System - By TP055347 APU FYP
     </footer>
-</body>
+  </body>
 </html>
