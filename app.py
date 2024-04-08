@@ -117,6 +117,14 @@ def new_case():
             f"diet_weight:{request.form['diet_weight']}",
             f"skin_coat_condition:{request.form['skin_coat_condition']}",
             f"ear_condition:{request.form['ear_condition']}",
+            f"appetite:{request.form['appetite']}",
+            f"vomiting_diarrhoea:{request.form['vomiting_diarrhoea']}",
+            f"urination_defecation:{request.form['urination_defecation']}",
+            f"behavioural_changes:{request.form['behavioural_changes']}",
+            f"mobility:{request.form['mobility']}",
+            f"gum_colour:{request.form['gum_colour']}",
+            f"pain_response:{request.form['pain_response']}",
+            f"others:{request.form['others']}"            
         ]
         query_text = ", ".join(checklist_items)
 

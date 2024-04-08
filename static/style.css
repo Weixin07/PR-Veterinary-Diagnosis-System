@@ -161,7 +161,7 @@ label {
 /* Input field styling */
 .input-field input {
   width: 100%;
-  padding: 3%;
+  padding: 5% 3% 3% 3%; /* Increased top padding to move text down */
   margin-bottom: 5%; /* Spacing between input fields and button */
   border: 1px solid #b88781;
   border-radius: 5px;
