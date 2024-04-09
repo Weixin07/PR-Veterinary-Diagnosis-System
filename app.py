@@ -8,7 +8,14 @@ from flask import (
     session,
     jsonify,
 )
-from models import MedicalCondition, QueryResult, Report, UserData, db
+from models import (
+    InitialHypothesis,
+    MedicalCondition,
+    QueryResult,
+    Report,
+    UserData,
+    db,
+)
 import logging
 from flask_debugtoolbar import DebugToolbarExtension
 from openai import OpenAI, OpenAIError, RateLimitError, BadRequestError
@@ -51,9 +58,11 @@ def decrypt_data(data):
 def login_page():
     return render_template("login.html")
 
+
 @app.route("/documentation", methods=["GET"])
 def documentation():
     return render_template("documentation.html")
+
 
 ## use hasing, later
 @app.route("/login", methods=["POST"])
@@ -102,6 +111,190 @@ def home_page():
         return redirect(url_for("login_page"))
 
 
+def process_initial_evaluation(query_id, query_text, attempt=1, max_attempts=3):
+    # Adjusted prompt to clearly define the expected response format and request only one medical condition
+    prompt_for_gpt = (
+        "The recipient is a veterinary assistant, do not worry about using professional terms. "
+        "Please format your response as follows: 'Condition Name: Condition Name. "
+        "Urgency Level: Low/Medium/High. Justification: Short and Concise Condition Justification. "
+        "First-Aid Procedure Suggestion: Suggested Procedure. Reference: [link to source]'. "
+        f"{query_text} Please provide 1 possible medical condition based on the above symptoms, "
+        "with the condition's name, concise justification, urgency level, suggested first-aid procedure, and a reference link."
+    )
+
+    try:
+        response = client.chat.completions.create(
+            model="gpt-4-0125-preview",
+            messages=[{"role": "system", "content": prompt_for_gpt}],
+            temperature=0.5,
+            max_tokens=4096,
+            frequency_penalty=1.0,
+            n=1,
+            stop=None,
+        )
+
+        for choice in response.choices:
+            api_response = choice.message.content.strip()
+            print("API Response:", api_response)  # Print the generated text
+
+            # Since only one condition is requested, the logic to handle multiple conditions is not needed.
+            # Directly split and process the single response.
+            parts = api_response.split("Urgency Level:")
+            if len(parts) < 2:
+                app.logger.error("Incomplete information for condition received.")
+                raise ValueError("Incomplete data received from GPT.")
+
+            name_part, rest = parts[0].strip(), parts[1].strip()
+            name_text = name_part.replace(
+                "Condition Name: ", ""
+            ).strip()  # Extract the condition name
+
+            urgency_and_rest = rest.split("Justification:")
+            if len(urgency_and_rest) < 2:
+                app.logger.error("Missing urgency or justification for condition.")
+                continue
+
+            urgency, justification_and_rest = (
+                urgency_and_rest[0].strip(),
+                urgency_and_rest[1].strip(),
+            )
+
+            justification_part, treatment_and_reference = justification_and_rest.split(
+                "First-Aid Procedure Suggestion:"
+            )
+            justification = justification_part.strip()
+
+            treatment_suggestion, reference = treatment_and_reference.split(
+                "Reference:"
+            )
+            treatment_suggestion = treatment_suggestion.strip()
+            reference = reference.strip().replace("[", "").replace("]", "")
+
+            # Encrypt each part as needed before saving
+            new_initial_hypothesis = InitialHypothesis(
+                QResultID=query_id,
+                Name=encrypt_data(name_text),
+                Urgency=encrypt_data(urgency),
+                justification=encrypt_data(justification),
+                TreatmentSuggestion=encrypt_data(treatment_suggestion),
+                Reference=encrypt_data(reference),
+            )
+            db.session.add(new_initial_hypothesis)
+        db.session.commit()
+    except (
+        OpenAIError,
+        RateLimitError,
+        BadRequestError,
+        HTTPError,
+        Timeout,
+        RequestException,
+    ) as e:
+        db.session.rollback()
+        app.logger.error(f"API call failed: {str(e)}")
+    except ValueError as ve:
+        if attempt < max_attempts:
+            app.logger.error(
+                f"Trying again due to incomplete data: Attempt {attempt} of {max_attempts}. Error: {ve}"
+            )
+            time.sleep(2)  # Wait for 2 seconds before retrying
+            return process_initial_evaluation(
+                query_id, query_text, attempt + 1, max_attempts
+            )
+        else:
+            app.logger.error(f"Max retry attempts reached with error: {ve}")
+            flash(
+                "Could not get complete data from GPT after several attempts.", "error"
+            )
+    except Exception as e:
+        db.session.rollback()
+        app.logger.error(f"Unexpected error: {str(e)}")
+
+
+def process_query_with_gpt(query_id, query_text, attempt=1, max_attempts=3):
+    # Adjusted prompt to clearly define the expected response format and request only one medical condition
+    prompt_for_gpt = (
+        "The recipient is a veterinarian, do not worry about using professional terms. "
+        "Please format your response as follows: 'Condition Name: Condition Justification. "
+        "Treatment Suggestion: Suggested Treatment. Reference: [link to source]'. "
+        f"{query_text} Please provide 1 possible medical condition based on the above symptoms, "
+        "with the condition's justification, suggested treatment, and a reference link."
+    )
+
+    try:
+        response = client.chat.completions.create(
+            model="gpt-4-0125-preview",
+            messages=[{"role": "system", "content": prompt_for_gpt}],
+            temperature=0.5,
+            max_tokens=4096,
+            frequency_penalty=0.0,
+            n=1,
+            stop=None,
+        )
+
+        for choice in response.choices:
+            api_response = choice.message.content.strip()
+            print("API Response:", api_response)  # Print the generated text
+
+            # Directly process the single response since only one condition is requested.
+            parts = api_response.split("Treatment Suggestion:")
+            if len(parts) < 2:
+                app.logger.error("Incomplete information for condition received.")
+                raise ValueError("Incomplete data received from GPT.")
+
+            name_justification_parts = parts[0].split("Condition Justification:")
+            if len(name_justification_parts) < 2:
+                app.logger.error("Missing justification for condition. Skipping.")
+                continue
+
+            name_text = (
+                name_justification_parts[0].replace("Condition Name:", "").strip()
+            )
+            justification_text = name_justification_parts[1].strip()
+
+            treatment_text, reference_text = parts[1].split("Reference:", 1)
+            treatment_text = treatment_text.strip()
+            reference_text = reference_text.strip().replace("[", "").replace("]", "")
+
+            # Encrypt each part as needed before saving
+            new_condition = MedicalCondition(
+                QResultID=query_id,
+                Name=encrypt_data(name_text),
+                justification=encrypt_data(justification_text),
+                TreatmentSuggestion=encrypt_data(treatment_text),
+                Reference=encrypt_data(reference_text),
+            )
+            db.session.add(new_condition)
+
+        db.session.commit()
+    except (
+        OpenAIError,
+        RateLimitError,
+        BadRequestError,
+        HTTPError,
+        Timeout,
+        RequestException,
+    ) as e:
+        db.session.rollback()
+        app.logger.error(f"API call failed: {str(e)}")
+    except ValueError as ve:
+        if attempt < max_attempts:
+            app.logger.error(
+                f"Trying again due to incomplete data: Attempt {attempt} of {max_attempts}. Error: {ve}"
+            )
+            time.sleep(2)  # Wait for 2 seconds before retrying
+            return process_query_with_gpt(
+                query_id, query_text, attempt + 1, max_attempts
+            )
+        else:
+            app.logger.error(f"Max retry attempts reached with error: {ve}")
+            flash(
+                "Could not get complete data from GPT after several attempts.", "error"
+            )
+    except Exception as e:
+        db.session.rollback()
+        app.logger.error(f"Unexpected error: {str(e)}")
+
+
 @app.route("/new_case", methods=["GET", "POST"])
 def new_case():
     if "role" not in session:
@@ -124,7 +317,7 @@ def new_case():
             f"mobility:{request.form['mobility']}",
             f"gum_colour:{request.form['gum_colour']}",
             f"pain_response:{request.form['pain_response']}",
-            f"others:{request.form['others']}"            
+            f"others:{request.form['others']}",
         ]
         query_text = ", ".join(checklist_items)
 
@@ -135,6 +328,21 @@ def new_case():
         try:
             db.session.commit()
             flash("New case added successfully.", "success")
+
+            # At this point, new_query.QResultID contains the ID of the new QueryResult
+            print(f"New QueryResult ID: {new_query.QResultID}")
+
+        except Exception as e:
+            flash("Error in database commit: {}".format(e), "error")
+            db.session.rollback()
+
+        try:
+            # Call the separate function for API interaction
+            process_initial_evaluation(new_query.QResultID, query_text)
+
+            new_report = Report(QResultID=new_query.QResultID)
+            db.session.add(new_report)
+            db.session.commit()
         except Exception as e:
             flash("Error in database commit: {}".format(e), "error")
             db.session.rollback()
@@ -228,120 +436,13 @@ def edit_case(query_id):
         )
 
 
-def process_query_with_gpt(query_id, query_text, attempt=1, max_attempts=3):
-    # Adjusted prompt to clearly define the expected response format
-    prompt_for_gpt = (
-        "The recipient is a veterinarian, do not worry about using professional terms. "
-        "Please format your response as follows: 'Condition Name: Condition Justification. "
-        "Treatment Suggestion: Suggested Treatment. Reference: [link to source]'. "
-        f"{query_text} Please provide three possible medical conditions based on the above symptoms, "
-        "with each condition's justification, suggested treatment, and a reference link."
-    )
-
-    try:
-        response = client.chat.completions.create(
-            model="gpt-4",
-            messages=[{"role": "system", "content": prompt_for_gpt}],
-            temperature=0.5,
-            max_tokens=256,
-            frequency_penalty=0.0,
-            n=1,
-            stop=None,
-        )
-
-        for choice in response.choices:
-            api_response = choice.message.content.strip()
-            print("API Response:", api_response)  # Print the generated text
-
-            # Use "Condition Name:" as a delimiter to split the response into conditions
-            conditions = api_response.split("Condition Name:")
-            if conditions and conditions[0] == "":
-                conditions.pop(0)
-
-            if not conditions or len(conditions) < 3:
-                app.logger.error("Incomplete information for condition received.")
-                raise ValueError("Incomplete data received from GPT.")
-
-            for condition in conditions:
-                parts = condition.split("Treatment Suggestion:")
-                if len(parts) < 2:
-                    app.logger.error("Incomplete information for condition. Skipping.")
-                    continue
-
-                # Splitting by 'Reference:' first to ensure we capture the name properly
-                name_justification_parts = parts[0].split("Condition Justification:")
-                if len(name_justification_parts) < 2:
-                    app.logger.error("Missing justification for condition. Skipping.")
-                    continue
-
-                name_text = encrypt_data(name_justification_parts[0].strip())
-                justification_text = encrypt_data(name_justification_parts[1].strip())
-
-                treatment_text, reference_text = parts[1].split("Reference:", 1)
-                treatment_text = encrypt_data(treatment_text.strip())
-                reference_text = encrypt_data(
-                    reference_text.strip().replace("[", "").replace("]", "")
-                )
-
-                new_condition = MedicalCondition(
-                    QResultID=query_id,
-                    Name=name_text,
-                    justification=justification_text,
-                    TreatmentSuggestion=treatment_text,
-                    Reference=reference_text,
-                )
-                db.session.add(new_condition)
-
-            db.session.commit()
-    except (
-        OpenAIError,
-        RateLimitError,
-        BadRequestError,
-        HTTPError,
-        Timeout,
-        RequestException,
-    ) as e:
-        db.session.rollback()
-        app.logger.error(f"API call failed: {str(e)}")
-    except ValueError as ve:
-        if attempt < max_attempts:
-            app.logger.error(
-                f"Trying again due to incomplete data: Attempt {attempt} of {max_attempts}. Error: {ve}"
-            )
-            time.sleep(2)  # Wait for 2 seconds before retrying
-            return process_query_with_gpt(
-                query_id, query_text, attempt + 1, max_attempts
-            )
-        else:
-            app.logger.error(f"Max retry attempts reached with error: {ve}")
-            flash(
-                "Could not get complete data from GPT after several attempts.", "error"
-            )
-    except IndexError as ie:
-        if attempt < max_attempts:
-            app.logger.error(
-                f"Trying again due to index error: Attempt {attempt} of {max_attempts}. Error: {ie}"
-            )
-            time.sleep(2)  # Wait for 2 seconds before retrying
-            return process_query_with_gpt(
-                query_id, query_text, attempt + 1, max_attempts
-            )
-        else:
-            app.logger.error(f"Max retry attempts reached with error: {ie}")
-            flash(
-                "Could not get complete data from GPT after several attempts.", "error"
-            )
-    except Exception as e:
-        db.session.rollback()
-        app.logger.error(f"Unexpected error: {str(e)}")
-
-
 @app.route("/view_reports")
 def view_reports():
     # Perform a join between Report and QueryResult based on QResultID
     reports_with_queries_raw = (
         db.session.query(Report.ReportID, QueryResult.Query)
         .join(QueryResult, Report.QResultID == QueryResult.QResultID)
+        .order_by(Report.ReportID.desc())
         .all()
     )
 
@@ -357,23 +458,46 @@ def view_reports():
 @app.route("/report_details/<int:report_id>", methods=["GET"])
 def report_details(report_id):
     report = db.session.get(Report, report_id)
-    if report:
-        medical_conditions = MedicalCondition.query.filter_by(
-            QResultID=report.QResultID
-        ).all()
-        medical_conditions_data = [
-            {
-                "name": decrypt_data(condition.Name),
-                "justification": decrypt_data(condition.justification),
-                "treatment": decrypt_data(condition.TreatmentSuggestion),
-                "reference": decrypt_data(condition.Reference),
-            }
-            for condition in medical_conditions
-        ]
-
-        return jsonify(medical_conditions_data)
-    else:
+    if not report:
         return jsonify({"error": "Report not found"}), 404
+
+    # Fetch MedicalCondition entries
+    medical_conditions = MedicalCondition.query.filter_by(
+        QResultID=report.QResultID
+    ).all()
+    initial_hypotheses = InitialHypothesis.query.filter_by(
+        QResultID=report.QResultID
+    ).all()
+
+    # Preparing data from MedicalCondition
+    medical_conditions_data = [
+        {
+            "type": "Medical Condition",
+            "name": decrypt_data(condition.Name),
+            "justification": decrypt_data(condition.justification),
+            "treatment": decrypt_data(condition.TreatmentSuggestion),
+            "reference": decrypt_data(condition.Reference),
+        }
+        for condition in medical_conditions
+    ]
+
+    # Preparing data from InitialHypothesis
+    initial_hypotheses_data = [
+        {
+            "type": "Initial Hypothesis",
+            "name": decrypt_data(hypothesis.Name),
+            "urgency": decrypt_data(hypothesis.Urgency),
+            "justification": decrypt_data(hypothesis.justification),
+            "treatment": decrypt_data(hypothesis.TreatmentSuggestion),
+            "reference": decrypt_data(hypothesis.Reference),
+        }
+        for hypothesis in initial_hypotheses
+    ]
+
+    # Combine both datasets into one list to pass to the frontend
+    combined_data = medical_conditions_data + initial_hypotheses_data
+
+    return jsonify(combined_data)
 
 
 @app.route("/manage_account", methods=["GET", "POST"])

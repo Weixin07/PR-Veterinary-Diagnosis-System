@@ -384,6 +384,7 @@ label {
   display: flex;
   flex-direction: column;
   justify-content: flex-start; /* Align content to the top */
+  margin-top: 3%; /* Align top with the page */
 }
 
 /* Clearfix for the floating elements */

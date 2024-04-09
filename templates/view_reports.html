@@ -1,35 +1,36 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
+<head>
     <meta charset="UTF-8" />
     <title>View Reports</title>
-    <link
-      rel="stylesheet"
-      href="{{ url_for('static', filename='style.css') }}"
-    />
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
     <script>
       function fetchReportDetails(reportId) {
         fetch("/report_details/" + reportId)
           .then((response) => response.json())
           .then((data) => {
+            window.scrollTo(0, 0);
+
             let detailsHtml = `<h2>Details for Report ${reportId}</h2>`;
-            data.forEach((condition, index) => {
-              detailsHtml += `
-                        <div>
-                            <h3><strong>Name:</strong> ${condition.name}</h3>
-                            <p><strong>Justification:</strong> ${condition.justification}</p>
-                            <p><strong>Treatment Suggestion:</strong> ${condition.treatment}</p>
-                            <p><strong>Reference:</strong> <a href="${condition.reference}" target="_blank">Source</a></p>
-                        </div>
-                    `;
+            data.forEach((item) => {
+              detailsHtml += `<div class="report-detail-item">`;
+              detailsHtml += `<h3>${item.type}</h3>`;
+              detailsHtml += `<p><strong>Name:</strong> ${item.name}</p>`;
+              if(item.urgency){ // Display urgency for initial hypotheses
+                detailsHtml += `<p><strong>Urgency Level:</strong> ${item.urgency}</p>`;
+              }
+              detailsHtml += `<p><strong>Justification:</strong> ${item.justification}</p>`;
+              detailsHtml += `<p><strong>Treatment Suggestion:</strong> ${item.treatment}</p>`;
+              detailsHtml += `<p><strong>Reference:</strong> <a href="${item.reference}" target="_blank">Source</a></p>`;
+              detailsHtml += `</div>`;
             });
             document.getElementById("report-details").innerHTML = detailsHtml;
           })
           .catch((error) => console.error("Error:", error));
       }
     </script>
-  </head>
-  <body class="body">
+</head>
+<body class="body">
     <header class="header">
       <a href="{{ url_for('logout') }}" class="logout-link">Logout</a>
       <nav><a href="{{ url_for('home_page') }}">Return Homepage</a></nav>
@@ -38,20 +39,12 @@
     <div class="main-content viewreport">
       <div class="reports-list">
         <div class="reports-header">
-          <img
-            src="{{ url_for('static', filename='images/logo.png') }}"
-            alt="Pet Recovery Logo"
-            class="logo report-logo"
-          />
+          <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Pet Recovery Logo" class="logo report-logo" />
           <h1>Reports</h1>
         </div>
         <ul>
           {% for report, query in reports %}
-          <li
-            class="report-item"
-            onclick="fetchReportDetails({{ report }})"
-            style="cursor: pointer"
-          >
+          <li class="report-item" onclick="fetchReportDetails({{ report }})" style="cursor: pointer">
             <strong>Report ID:</strong> {{ report }}<br />
             <div class="query-content"><strong>Query:</strong> {{ query }}</div>
           </li>
@@ -66,5 +59,5 @@
     <footer class="footer">
       @2024 Pet Recovery Veterinary Diagnostic System - By TP055347 APU FYP
     </footer>
-  </body>
+</body>
 </html>
