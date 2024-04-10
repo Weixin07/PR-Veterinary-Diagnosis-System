@@ -539,3 +539,33 @@ td {
 tbody tr:hover {
   background-color: #5e4d4b; /* This is the color the row will change to when you hover over it */
 }
+
+.file-upload-btn {
+  padding: 5%;
+  padding-left: 10%;
+  padding-right: 10%;
+  background-color: #85625e;
+  color: #ffffff;
+  font-size: 1em;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  width: auto; /* Auto width for the content */
+  transition: background-color 0.3s;
+  margin-bottom: 1; /* Space below the button */
+  display: block; /* or inline-block */
+  text-align: center;
+}
+
+.file-upload-btn:hover {
+  background-color: #5e4d4b;
+}
+
+/* Button container styling */
+.upload-button-container {
+  width: 100%; /* Set width to the outer container width */
+  display: flex;
+  justify-content: center; /* Center button horizontally */
+  margin-top: 10%;
+  margin-bottom: 2%; /* Added bottom margin for spacing */
+}

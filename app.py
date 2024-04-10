@@ -1,3 +1,4 @@
+import tempfile
 from flask import (
     Flask,
     flash,
@@ -24,6 +25,9 @@ from cryptography.fernet import Fernet
 import os
 import time
 from passlib.hash import argon2
+from pdf2image import convert_from_path
+import pytesseract
+from werkzeug.utils import secure_filename
 
 
 client = OpenAI()
@@ -37,6 +41,16 @@ app.config["SECRET_KEY"] = "prdiagnosticsystem"
 app.config["DEBUG_TB_INTERCEPT_REDIRECTS"] = (
     False  # Prevents the debug toolbar from intercepting redirects
 )
+# Set the project directory
+project_dir = "C:/Users/Faithlin Hoe/PR-Veterinary-Diagnosis-System"
+upload_folder = os.path.join(project_dir, "uploads")
+
+# Now set the UPLOAD_FOLDER in your Flask app's config
+app.config["UPLOAD_FOLDER"] = upload_folder
+
+# Ensure the directory exists
+os.makedirs(app.config["UPLOAD_FOLDER"], exist_ok=True)
+
 
 db.init_app(app)
 toolbar = DebugToolbarExtension(app)
@@ -56,60 +70,13 @@ def decrypt_data(data):
     return cipher_suite.decrypt(data.encode()).decode()
 
 
-@app.route("/", methods=["GET"])
-def login_page():
-    return render_template("login.html")
-
-
-@app.route("/documentation", methods=["GET"])
-def documentation():
-    return render_template("documentation.html")
-
-
-@app.route("/login", methods=["POST"])
-def login():
-    email = request.form["email"].strip()
-    password = request.form["password"].strip()
-    app.logger.debug("Attempting to log in with email: %s", email)
-
-    user = UserData.query.filter_by(email=email).first()
-
-    if user and argon2.verify(password, user.password):
-        app.logger.debug("Login successful for user: %s", email)
-
-        # Store user information in the session
-        session["UserID"] = user.id
-        session["role"] = user.role
-
-        app.logger.debug("Session contents: %s", session)
-        return redirect(url_for("home_page"))
-
-    else:
-        app.logger.debug("Login failed for user: %s", email)
-        return render_template(
-            "login.html", error="Invalid credentials. Please try again."
-        )
-
-
-@app.route("/logout")
-def logout():
-    # This removes all data stored in the session
-    session.clear()
-    return redirect(url_for("login_page"))
-
-
-@app.route("/home", methods=["GET"])
-def home_page():
-    app.logger.debug("Accessed home with session: %s", session)
-
-    if session["role"] == "veterinarian" or session["role"] == "assistant":
-        return render_template("client_home.html")
-    elif session["role"] == "admin":
-        return render_template("admin_home.html")
-    else:
-        # If role is not recognized, clear the session and redirect to login
-        session.clear()
-        return redirect(url_for("login_page"))
+# Define the process_pdf function that handles PDF processing
+def process_pdf(pdf_path):
+    pages = convert_from_path(pdf_path)
+    text = ""
+    for page in pages:
+        text += pytesseract.image_to_string(page)
+    return text
 
 
 def process_initial_evaluation(query_id, query_text, attempt=1, max_attempts=3):
@@ -296,6 +263,62 @@ def process_query_with_gpt(query_id, query_text, attempt=1, max_attempts=3):
         app.logger.error(f"Unexpected error: {str(e)}")
 
 
+@app.route("/", methods=["GET"])
+def login_page():
+    return render_template("login.html")
+
+
+@app.route("/documentation", methods=["GET"])
+def documentation():
+    return render_template("documentation.html")
+
+
+@app.route("/login", methods=["POST"])
+def login():
+    email = request.form["email"].strip()
+    password = request.form["password"].strip()
+    app.logger.debug("Attempting to log in with email: %s", email)
+
+    user = UserData.query.filter_by(email=email).first()
+
+    if user and argon2.verify(password, user.password):
+        app.logger.debug("Login successful for user: %s", email)
+
+        # Store user information in the session
+        session["UserID"] = user.id
+        session["role"] = user.role
+
+        app.logger.debug("Session contents: %s", session)
+        return redirect(url_for("home_page"))
+
+    else:
+        app.logger.debug("Login failed for user: %s", email)
+        return render_template(
+            "login.html", error="Invalid credentials. Please try again."
+        )
+
+
+@app.route("/logout")
+def logout():
+    # This removes all data stored in the session
+    session.clear()
+    return redirect(url_for("login_page"))
+
+
+@app.route("/home", methods=["GET"])
+def home_page():
+    app.logger.debug("Accessed home with session: %s", session)
+
+    if session["role"] == "veterinarian" or session["role"] == "assistant":
+        return render_template("client_home.html")
+    elif session["role"] == "admin":
+        return render_template("admin_home.html")
+    else:
+        # If role is not recognized, clear the session and redirect to login
+        session.clear()
+        return redirect(url_for("login_page"))
+
+
 @app.route("/new_case", methods=["GET", "POST"])
 def new_case():
     if "role" not in session:
@@ -354,7 +377,8 @@ def new_case():
         if session["role"] == "assistant":
             return render_template("new_case_assistant.html")
         elif session["role"] == "veterinarian":
-            queries = QueryResult.query.all()
+            queries = QueryResult.query.order_by(QueryResult.QResultID.desc()).all()
+
             app.logger.debug("Number of queries found: %d", len(queries))
             decrypted_queries = []
 
@@ -395,6 +419,20 @@ def edit_case(query_id):
 
     if request.method == "POST":
         additional_info = request.form.get("additional_info", "").strip()
+        report_pdf = request.files.get("report_pdf")
+
+        if report_pdf and report_pdf.filename != "":
+            app.logger.debug("Received PDF file: %s", report_pdf.filename)
+            filename = secure_filename(report_pdf.filename)
+            filepath = os.path.join(tempfile.gettempdir(), filename)
+            report_pdf.save(filepath)
+            app.logger.debug("Saved PDF to temporary file: %s", filepath)
+            pdf_text = process_pdf(filepath)
+            app.logger.debug("Extracted text from PDF: %s", pdf_text)
+            os.remove(filepath)  # Delete the file after processing
+            # Define a title for the extracted PDF text
+            pdf_text_title = "Extracted PDF Text (Pathology Report):"
+            additional_info += f"\n, {pdf_text_title}{pdf_text}"
 
         # Append additional details in a comma-separated format and then encrypt again
         if decrypted_query and additional_info:

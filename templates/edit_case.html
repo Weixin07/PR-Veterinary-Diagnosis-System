@@ -26,6 +26,7 @@
           <form
             action="{{ url_for('edit_case', query_id=query.QResultID) }}"
             method="post"
+            enctype="multipart/form-data"
           >
             {% if query.Query %}
             <ul class="symptom-list">
@@ -43,6 +44,18 @@
                 required
                 class="case-textarea"
               ></textarea>
+            </div>
+            <div class="upload-button-container">
+              <input
+                type="file"
+                id="report_pdf"
+                name="report_pdf"
+                accept=".pdf"
+                style="display: none"
+              />
+              <label for="report_pdf" class="file-upload-btn"
+                >Attach Lab Report (PDF)</label
+              >
             </div>
             <div class="login-button-container">
               <button type="submit" class="new-case-button">Update Case</button>
