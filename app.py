@@ -23,6 +23,8 @@ from requests.exceptions import HTTPError, Timeout, RequestException
 from cryptography.fernet import Fernet
 import os
 import time
+from passlib.hash import argon2
+
 
 client = OpenAI()
 
@@ -64,16 +66,15 @@ def documentation():
     return render_template("documentation.html")
 
 
-## use hasing, later
 @app.route("/login", methods=["POST"])
 def login():
     email = request.form["email"].strip()
     password = request.form["password"].strip()
     app.logger.debug("Attempting to log in with email: %s", email)
 
-    user = UserData.query.filter_by(email=email, password=password).first()
+    user = UserData.query.filter_by(email=email).first()
 
-    if user:
+    if user and argon2.verify(password, user.password):
         app.logger.debug("Login successful for user: %s", email)
 
         # Store user information in the session
@@ -512,18 +513,16 @@ def manage_account():
 
     message = None
     current_email = user.email if user else ""
-    current_password = user.password if user else ""
 
     if request.method == "POST":
         new_email = request.form["new_email"].strip()
         new_password = request.form["new_password"].strip()
+        hashed_password = argon2.hash(new_password)
 
         if new_email:
             user.email = new_email
-        if new_password:  # Assuming you are storing passwords in a hashed form.
-            user.password = (
-                new_password  # This is an example, use your password hashing method.
-            )
+        if hashed_password:
+            user.password = hashed_password
 
         try:
             db.session.commit()
@@ -533,10 +532,7 @@ def manage_account():
             db.session.rollback()
 
     return render_template(
-        "manage_account.html",
-        message=message,
-        current_email=current_email,
-        current_password=current_password,
+        "manage_account.html", message=message, current_email=current_email
     )
 
 
@@ -567,10 +563,11 @@ def add_user():
     if "role" in session and session["role"] == "admin":
         if request.method == "POST":
             email = request.form["email"]
-            password = request.form["password"]  # This should be hashed
+            password = request.form["password"]
             role = request.form["role"]
+            hashed_password = argon2.hash(password)
 
-            new_user = UserData(email=email, password=password, role=role)
+            new_user = UserData(email=email, password=hashed_password, role=role)
             db.session.add(new_user)
             try:
                 db.session.commit()
