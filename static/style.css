@@ -502,6 +502,9 @@ label {
   flex-wrap: nowrap; /* Prevents elements from wrapping */
   gap: 5px; /* Space between elements */
   align-items: center; /* Vertical align */
+  width: 100%;
+}
+
 /* Specifically for the select element */
 .input-field select {
   -webkit-appearance: none; /* Removes default styling on webkit browsers */
@@ -539,7 +542,7 @@ table {
   border-spacing: 2%; /* This sets the spacing between cells */
   width: 75%; /* Adjust the width as needed */
   padding: 2%;
-  background-color: #b88781;
+  background-color: #b8a5a2;
   border-radius: 10px;
 }
 
@@ -552,6 +555,14 @@ td {
 /* Table row hover styling */
 tbody tr:hover {
   background-color: #5e4d4b; /* This is the color the row will change to when you hover over it */
+}
+
+.cell {
+  background-color: #b88781;
+  color: #ffffff; /* Text color for input */
+  font-size: 1em;
+  font-family: "Arial", sans-serif;
+  font-size: medium;
 }
 
 .file-upload-btn {

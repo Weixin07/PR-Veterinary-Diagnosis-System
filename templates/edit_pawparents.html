@@ -26,16 +26,16 @@
         <tr>
             <td>
                 <form method="post" action="{{ url_for('update_pawparent', pawparent_id=pawparent.PawparentID) }}" class="inline-form">
-                <input type="text" name="name" value="{{ pawparent.Name }}" required/>
+                <input type="text" name="name" value="{{ pawparent.Name }}" class="cell" required/>
             </td>
             <td>
-                <input type="text" name="phone_number" value="{{ pawparent.PhoneNumber }}" required/>
+                <input type="text" name="phone_number" value="{{ pawparent.PhoneNumber }}" class="cell" required/>
             </td>
             <td>
-                <button type="submit">Update</button>
+                <button type="submit" class = "update-button">Update</button>
                 </form>
                 <form method="post" action="{{ url_for('delete_pawparent', pawparent_id=pawparent.PawparentID) }}" class="inline-form">
-                    <button type="submit">Delete</button>
+                    <button type="submit" class = "update-button">Delete</button>
                 </form>
             </td>
         </tr>

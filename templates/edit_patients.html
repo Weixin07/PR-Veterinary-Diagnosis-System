@@ -56,22 +56,22 @@
         <tr>
             <td>
                 <form method="post" action="{{ url_for('update_patient', patient_id=patient.PatientID) }}" class="inline-form">
-                    <input type="text" name="patient_name" value="{{ patient.PatientName }}" required class="table-input" />
+                    <input type="text" name="patient_name" value="{{ patient.PatientName }}" class="cell" required />
                 </td>
             <td>
-                <input type="text" name="species" value="{{ patient.Species }}" required/>
+                <input type="text" name="species" value="{{ patient.Species }}" class="cell" required/>
             </td>
             <td>
-                <input type="number" name="age" value="{{ patient.Age }}" required/>
+                <input type="number" name="age" value="{{ patient.Age }}" class="cell" required/>
             </td>
             <td>
-                <input type="text" name="breed" value="{{ patient.Breed }}" required/>
+                <input type="text" name="breed" value="{{ patient.Breed }}" class="cell" required/>
             </td>
             <td>
-                <input type="text" name="gender" value="{{ patient.Gender }}" required/>
+                <input type="text" name="gender" value="{{ patient.Gender }}" class="cell" required/>
             </td>
             <td>
-                <input type="search" id="pawparentSearch" placeholder="Type to search Pawparents..." autocomplete="off" value="{{ patient.PawparentID }}">
+                <input type="search" id="pawparentSearch" placeholder="Type to search Pawparents..." autocomplete="off" value="{{ patient.PawparentID }}" class="cell">
                 <input type="hidden" id="selectedPawparentID" name="pawparentID" value="{{ patient.PawparentID }}">
                 <div id="searchResults" class="search-results-container"></div>
             </td>
