@@ -7,7 +7,7 @@ html {
 *,
 *:before,
 *:after {
-  box-sizing: inherit; /* inherit box-sizing to make sure padding does not affect width */
+  box-sizing: border-box;
 }
 
 body {
@@ -488,6 +488,20 @@ label {
   margin-top: 5%; /* Adjust as needed */
 }
 
+.user-table input[type="text"],
+.user-table input[type="number"],
+.user-table input[type="search"] {
+  width: calc(100% - 20px); /* Adjust the 20px based on your padding and borders */
+  padding: 8px; /* Or as needed */
+  margin: 0; /* Remove default margins */
+  border: 1px solid #ccc; /* As needed */
+}
+
+.user-table form.inline-form {
+  display: flex;
+  flex-wrap: nowrap; /* Prevents elements from wrapping */
+  gap: 5px; /* Space between elements */
+  align-items: center; /* Vertical align */
 /* Specifically for the select element */
 .input-field select {
   -webkit-appearance: none; /* Removes default styling on webkit browsers */
@@ -568,4 +582,35 @@ tbody tr:hover {
   justify-content: center; /* Center button horizontally */
   margin-top: 10%;
   margin-bottom: 2%; /* Added bottom margin for spacing */
+}
+
+.user-table .search-results-container {
+  width: 100%;
+  z-index: 10;
+}
+
+.search-result {
+  cursor: pointer;
+  padding: 1%;
+  display: block; /* Makes sure each result is on its own line */
+}
+
+input:focus, select:focus, textarea:focus, button:focus {
+  outline: none; /* Removes the default focus outline */
+}
+
+/* Login button styling */
+.update-button {
+  padding: 5%;
+  padding-left: 20%;
+  padding-right: 20%;
+  margin-top: 2%; /* Spacing between input fields and button */
+  background-color: #85625e;
+  color: #ffffff;
+  font-size: 0.7em;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  width: auto; /* Auto width for the content */
+  transition: background-color 0.3s;
 }

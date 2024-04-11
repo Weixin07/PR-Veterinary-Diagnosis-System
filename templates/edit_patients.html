@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Edit Patients</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+    $(document).ready(function(){
+        $("#pawparentSearch").on("input", function() {
+            var value = $(this).val();
+            var searchResults = $("#searchResults");
+
+            if (value.length >= 2) {
+                $.getJSON("/search_pawparents", {query: value}, function(data) {
+                    searchResults.empty(); 
+                    $.each(data, function(key, pawparent) {
+                        searchResults.append(`<div onclick="selectPawparent('${pawparent.id}', '${pawparent.text.replace("'", "\\'")}')" class="search-result">${pawparent.text}</div>`);
+                    });
+                });
+            } else {
+                searchResults.empty(); 
+            }
+        });
+    });
+
+    function selectPawparent(id, text) {
+        $('#selectedPawparentID').val(id);
+        $('#pawparentSearch').val(text);
+        $('#searchResults').empty(); 
+    }
+    </script>
+</head>
+<body>
+<header class="header">
+    <a href="{{ url_for('logout') }}" class="logout-link">Logout</a>
+    <nav><a href="{{ url_for('home_page') }}">Return Homepage</a></nav>
+</header>
+<div class="user-table">
+    <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Pet Recovery Logo" class="logo other-logo">
+
+    <table>
+        <thead>
+        <tr>
+            <th>Name</th>
+            <th>Species</th>
+            <th>Age</th>
+            <th>Breed</th>
+            <th>Gender</th>
+            <th>Pawparent</th>
+            <th>Actions</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for patient in patients %}
+        <tr>
+            <td>
+                <form method="post" action="{{ url_for('update_patient', patient_id=patient.PatientID) }}" class="inline-form">
+                    <input type="text" name="patient_name" value="{{ patient.PatientName }}" required class="table-input" />
+                </td>
+            <td>
+                <input type="text" name="species" value="{{ patient.Species }}" required/>
+            </td>
+            <td>
+                <input type="number" name="age" value="{{ patient.Age }}" required/>
+            </td>
+            <td>
+                <input type="text" name="breed" value="{{ patient.Breed }}" required/>
+            </td>
+            <td>
+                <input type="text" name="gender" value="{{ patient.Gender }}" required/>
+            </td>
+            <td>
+                <input type="search" id="pawparentSearch" placeholder="Type to search Pawparents..." autocomplete="off" value="{{ patient.PawparentID }}">
+                <input type="hidden" id="selectedPawparentID" name="pawparentID" value="{{ patient.PawparentID }}">
+                <div id="searchResults" class="search-results-container"></div>
+            </td>
+            <td>
+                <button type="submit" class = "update-button">Update</button>
+                </form>
+                <form method="post" action="{{ url_for('delete_patient', patient_id=patient.PatientID) }}" class="inline-form">
+                    <button type="submit" class = "update-button">Delete</button>
+                </form>
+            </td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+<footer class="footer">
+    @2024 Pet Recovery Veterinary Diagnostic System - By TP055347 APU FYP
+</footer>
+</body>
+</html>

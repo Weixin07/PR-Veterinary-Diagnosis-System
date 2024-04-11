@@ -1,3 +1,4 @@
+from datetime import date
 import tempfile
 from flask import (
     Flask,
@@ -12,6 +13,8 @@ from flask import (
 from models import (
     InitialHypothesis,
     MedicalCondition,
+    Patient,
+    Pawparent,
     QueryResult,
     Report,
     UserData,
@@ -640,6 +643,181 @@ def delete_user(user_id):
 
     # Redirect to the manage users page
     return redirect(url_for("manage_users"))
+
+
+#######################################################################################################################################
+@app.route("/manage_patients", methods=["GET"])
+def manage_patients():
+    if "role" in session and (
+        session["role"] == "assistant" or session["role"] == "veterinarian"
+    ):
+        patients = Patient.query.all()
+        return render_template("edit_patients.html", patients=patients)
+    return redirect(url_for("login_page"))
+
+
+@app.route("/add_patient", methods=["GET", "POST"])
+def add_patient():
+    if "role" in session and (
+        session["role"] == "assistant" or session["role"] == "veterinarian"
+    ):
+        if request.method == "POST":
+            try:
+                new_patient = Patient(
+                    PatientName=request.form["patient_name"],
+                    Species=request.form["species"],
+                    Age=int(request.form["age"]),
+                    Breed=request.form["breed"],
+                    Gender=request.form["gender"],
+                    PawparentID=int(request.form["pawparentID"]),
+                    DateCreated=date.today(),
+                )
+                db.session.add(new_patient)
+                db.session.commit()
+                flash("Patient added successfully.", "success")
+                return redirect(url_for("home_page"))
+            except Exception as e:
+                db.session.rollback()
+                flash("An error occurred while adding the patient: " + str(e), "error")
+                return redirect(url_for("add_patient"))
+        else:
+            pawparents = Pawparent.query.all()
+            return render_template("add_patient.html", pawparents=pawparents)
+    else:
+        flash("Access denied. Please log in with appropriate credentials.", "error")
+        return redirect(url_for("login_page"))
+
+
+@app.route("/search_pawparents")
+def search_pawparents():
+    query = request.args.get("query", "").lower()
+    if query:  # Ensure there is a query to search for
+        pawparents = Pawparent.query.filter(
+            Pawparent.Name.ilike(f"%{query}%")
+            | Pawparent.PhoneNumber.ilike(f"%{query}%")
+        ).all()
+    else:
+        pawparents = Pawparent.query.all()
+    pawparent_list = [
+        {
+            "id": pawparent.PawparentID,
+            "text": f"{pawparent.PawparentID} - {pawparent.Name} - {pawparent.PhoneNumber}",
+        }
+        for pawparent in pawparents
+    ]
+    return jsonify(pawparent_list)
+
+
+@app.route("/update_patient/<int:patient_id>", methods=["POST"])
+def update_patient(patient_id):
+    if "role" not in session or (
+        session["role"] != "assistant" and session["role"] != "veterinarian"
+    ):
+        return redirect(url_for("login_page"))
+
+    patient = db.session.get(Patient, patient_id)
+
+    if patient:
+        patient.PatientName = request.form["patient_name"]
+        patient.Species = request.form["species"]
+        patient.Age = request.form["age"]
+        patient.Breed = request.form["breed"]
+        patient.Gender = request.form["gender"]
+        patient.PawparentID = request.form["pawparentID"]
+        db.session.commit()
+        return redirect(url_for("manage_patients"))
+    return "Patient not found", 404
+
+
+@app.route("/delete_patient/<int:patient_id>", methods=["POST"])
+def delete_patient(patient_id):
+    if "role" not in session or (
+        session["role"] != "assistant" and session["role"] != "veterinarian"
+    ):
+        return redirect(url_for("login_page"))
+    patient_to_delete = Patient.query.get(patient_id)
+    if patient_to_delete:
+        db.session.delete(patient_to_delete)
+        try:
+            db.session.commit()
+            flash("Patient deleted successfully.", "success")
+        except Exception as e:
+            flash("An error occurred while deleting the patient. " + str(e), "error")
+            db.session.rollback()
+    else:
+        flash("Patient not found.", "error")
+    return redirect(url_for("manage_patients"))
+
+
+#######################################################################################################################################
+
+
+@app.route("/manage_pawparents", methods=["GET"])
+def manage_pawparents():
+    if "role" in session and (
+        session["role"] == "assistant" or session["role"] == "veterinarian"
+    ):
+        pawparents = Pawparent.query.all()
+        return render_template("edit_pawparents.html", pawparents=pawparents)
+    return redirect(url_for("login_page"))
+
+
+@app.route("/add_pawparent", methods=["GET", "POST"])
+def add_pawparent():
+    if "role" in session and (
+        session["role"] == "assistant" or session["role"] == "veterinarian"
+    ):
+        if request.method == "POST":
+            name = request.form["name"]
+            phone_number = request.form["phone_number"]
+            new_pawparent = Pawparent(Name=name, PhoneNumber=phone_number)
+            db.session.add(new_pawparent)
+            try:
+                db.session.commit()
+                return redirect(url_for("home_page"))
+            except Exception as e:
+                db.session.rollback()
+                flash(
+                    "An error occurred while adding the pawparent. " + str(e), "error"
+                )
+        return render_template("add_pawparents.html")
+    return redirect(url_for("login_page"))
+
+
+@app.route("/update_pawparent/<int:pawparent_id>", methods=["POST"])
+def update_pawparent(pawparent_id):
+    if "role" not in session or (
+        session["role"] != "assistant" and session["role"] != "veterinarian"
+    ):
+        return redirect(url_for("login_page"))
+
+    pawparent = Pawparent.query.get(pawparent_id)
+    if pawparent:
+        pawparent.Name = request.form["name"]
+        pawparent.PhoneNumber = request.form["phone_number"]
+        db.session.commit()
+        return redirect(url_for("manage_pawparents"))
+    return "Pawparent not found", 404
+
+
+@app.route("/delete_pawparent/<int:pawparent_id>", methods=["POST"])
+def delete_pawparent(pawparent_id):
+    if "role" not in session or (
+        session["role"] != "assistant" and session["role"] != "veterinarian"
+    ):
+        return redirect(url_for("login_page"))
+    pawparent_to_delete = Pawparent.query.get(pawparent_id)
+    if pawparent_to_delete:
+        db.session.delete(pawparent_to_delete)
+        try:
+            db.session.commit()
+            flash("Pawparent deleted successfully.", "success")
+        except Exception as e:
+            flash("An error occurred while deleting the pawparent. " + str(e), "error")
+            db.session.rollback()
+    else:
+        flash("Pawparent not found.", "error")
+    return redirect(url_for("manage_pawparents"))
 
 
 if __name__ == "__main__":

@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Add New Patient</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function(){
+            $("#pawparentSearch").on("input", function() { // Changed to 'input' for immediate response to 'X' clear
+                var value = $(this).val();
+                var searchResults = $("#searchResults");
+
+                if (value.length >= 2) {
+                    $.getJSON("/search_pawparents", {query: value}, function(data) {
+                        searchResults.empty(); // Clear existing options
+                        $.each(data, function(key, pawparent) {
+                            searchResults.append(`<div onclick="selectPawparent('${pawparent.id}', '${pawparent.text.replace("'", "\\'")}')" class="search-result">${pawparent.text}</div>`);
+                        });
+                    });
+                } else {
+                    searchResults.empty(); // Clear search results when input is cleared
+                }
+            });
+        });
+
+        function selectPawparent(id, text) {
+            $('#selectedPawparentID').val(id);
+            $('#pawparentSearch').val(text);
+            $('#searchResults').empty(); // Clear search results after selection
+        }
+    </script>
+</head>
+<body>
+    <header class="header">
+        <a href="{{ url_for('logout') }}" class="logout-link">Logout</a>
+        <nav><a href="{{ url_for('home_page') }}">Return Homepage</a></nav>
+    </header>
+
+    <div class="main-content">
+        <div class="case-container">
+            <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Pet Recovery Logo" class="logo other-logo">
+            <form method="post" action="{{ url_for('add_patient') }}">
+                <!-- Patient Information Fields -->
+                <div class="input-field">
+                    <label for="patient_name">Name:</label>
+                    <input type="text" id="patient_name" name="patient_name" required />
+                </div>
+                <div class="input-field">
+                    <label for="species">Species:</label>
+                    <input type="text" id="species" name="species" required />
+                </div>
+                <div class="input-field">
+                    <label for="age">Age:</label>
+                    <input type="number" id="age" name="age" required />
+                </div>
+                <div class="input-field">
+                    <label for="breed">Breed:</label>
+                    <input type="text" id="breed" name="breed" required />
+                </div>
+                <div class="input-field">
+                    <label for="gender">Gender:</label>
+                    <input type="text" id="gender" name="gender" required />
+                </div>
+                <!-- AJAX Search Box for PawparentID -->
+                <div class="input-field">
+                    <label for="pawparentSearch">Pawparent:</label>
+                    <input type="search" id="pawparentSearch" placeholder="Pawparent Name/Phone Number" autocomplete="off">
+                    <!-- Hidden input to store the selected Pawparent ID -->
+                    <input type="hidden" id="selectedPawparentID" name="pawparentID">
+                </div>
+                <div id="searchResults" class="search-results-container"></div>
+                <div class="login-button-container">
+                    <button type="submit" class="new-case-button">Add Patient</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <footer class="footer">
+        @2024 Pet Recovery Veterinary Diagnostic System - By TP055347 APU FYP
+    </footer>
+</body>
+</html>
