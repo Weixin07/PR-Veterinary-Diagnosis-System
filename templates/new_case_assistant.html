@@ -7,6 +7,60 @@
       rel="stylesheet"
       href="{{ url_for('static', filename='style.css') }}"
     />
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+      $(document).ready(function () {
+        $("#pawparentSearch").on("input", function () {
+          var value = $(this).val();
+          var searchResults = $("#searchResults");
+
+          if (value.length >= 2) {
+            $.getJSON("/search_pawparents", { query: value }, function (data) {
+              searchResults.empty(); // Clear existing results
+              $.each(data, function () {
+                searchResults.append(
+                  `<div onclick="selectPawparent('${
+                    this.id
+                  }', '${this.text.replace(
+                    "'",
+                    "\\'"
+                  )}')" class="search-result">${this.text}</div>`
+                );
+              });
+            });
+          } else {
+            searchResults.empty(); // Clear search results when input is cleared
+          }
+        });
+      });
+
+      function selectPawparent(id, text) {
+        $("#selectedPawparentID").val(id);
+        $("#pawparentSearch").val(text);
+        $("#searchResults").empty(); // Clear search results after selection
+        loadPatients(id); // Call to load patients after pawparent is selected
+      }
+
+      function loadPatients(pawparentID) {
+        if (pawparentID) {
+          $.getJSON(
+            "/get_patients_by_pawparent",
+            { pawparentID: pawparentID },
+            function (data) {
+              let patientsDropdown = $("#patientID");
+              patientsDropdown.empty();
+              $.each(data, function () {
+                patientsDropdown.append(
+                  $("<option>").val(this.PatientID).text(this.PatientName)
+                );
+              });
+            }
+          );
+        } else {
+          $("#patientID").empty(); // Optionally clear patients if no pawparent is selected
+        }
+      }
+    </script>
   </head>
   <body>
     <header class="header">
@@ -24,70 +78,181 @@
         />
 
         <form action="{{ url_for('new_case') }}" method="post">
+          <!-- AJAX Search Box for PawparentID -->
+          <div class="input-field">
+            <label for="pawparentSearch">Pawparent:</label>
+            <input
+              type="search"
+              id="pawparentSearch"
+              name="pawparentSearch"
+              placeholder="Pawparent Name/Phone Number"
+              autocomplete="off"
+            />
+            <input type="hidden" id="selectedPawparentID" name="pawparentID" />
+          </div>
+          <div id="searchResults" class="search-results-container"></div>
+
+          <div class="input-field">
+            <label for="patientID">Select Patient:</label>
+            <select id="patientID" name="patientID"></select>
+          </div>
           <div class="input-field">
             <label for="activity">Activity Level:</label>
-            <input type="text" id="activity" name="activity" required class="case-input" />
+            <input
+              type="text"
+              id="activity"
+              name="activity"
+              required
+              class="case-input"
+            />
           </div>
           <div class="input-field">
             <label for="breathing">Breathing:</label>
-            <input type="text" id="breathing" name="breathing" required class="case-input" />
+            <input
+              type="text"
+              id="breathing"
+              name="breathing"
+              required
+              class="case-input"
+            />
           </div>
           <div class="input-field">
             <label for="eye_condition">Eye Condition:</label>
-            <input type="text" id="eye_condition" name="eye_condition" required class="case-input" />
+            <input
+              type="text"
+              id="eye_condition"
+              name="eye_condition"
+              required
+              class="case-input"
+            />
           </div>
           <div class="input-field">
             <label for="discharge">Discharge:</label>
-            <input type="text" id="discharge" name="discharge" required class="case-input" />
+            <input
+              type="text"
+              id="discharge"
+              name="discharge"
+              required
+              class="case-input"
+            />
           </div>
           <div class="input-field">
             <label for="diet_weight">Diet & Weight:</label>
-            <input type="text" id="diet_weight" name="diet_weight" required class="case-input" />
+            <input
+              type="text"
+              id="diet_weight"
+              name="diet_weight"
+              required
+              class="case-input"
+            />
           </div>
           <div class="input-field">
             <label for="skin_coat_condition">Skin & Coat Condition:</label>
-            <input type="text" id="skin_coat_condition" name="skin_coat_condition" required class="case-input" />
+            <input
+              type="text"
+              id="skin_coat_condition"
+              name="skin_coat_condition"
+              required
+              class="case-input"
+            />
           </div>
           <div class="input-field">
             <label for="ear_condition">Ear Condition:</label>
-            <input type="text" id="ear_condition" name="ear_condition" required class="case-input" />
+            <input
+              type="text"
+              id="ear_condition"
+              name="ear_condition"
+              required
+              class="case-input"
+            />
           </div>
           <div class="input-field">
             <label for="appetite">Appetite:</label>
-            <input type="text" id="appetite" name="appetite" required class="case-input" />
+            <input
+              type="text"
+              id="appetite"
+              name="appetite"
+              required
+              class="case-input"
+            />
           </div>
           <div class="input-field">
             <label for="vomiting_diarrhoea">Vomiting/Diarrhoea:</label>
-            <input type="text" id="vomiting_diarrhoea" name="vomiting_diarrhoea" required class="case-input" />
+            <input
+              type="text"
+              id="vomiting_diarrhoea"
+              name="vomiting_diarrhoea"
+              required
+              class="case-input"
+            />
           </div>
           <div class="input-field">
-            <label for="urination_defecation">Urination/Defecation Habits:</label>
-            <input type="text" id="urination_defecation" name="urination_defecation" required class="case-input" />
+            <label for="urination_defecation"
+              >Urination/Defecation Habits:</label
+            >
+            <input
+              type="text"
+              id="urination_defecation"
+              name="urination_defecation"
+              required
+              class="case-input"
+            />
           </div>
           <div class="input-field">
             <label for="behavioural_changes">Behavioural Changes:</label>
-            <input type="text" id="behavioural_changes" name="behavioural_changes" required class="case-input" />
+            <input
+              type="text"
+              id="behavioural_changes"
+              name="behavioural_changes"
+              required
+              class="case-input"
+            />
           </div>
           <div class="input-field">
             <label for="mobility">Mobility:</label>
-            <input type="text" id="mobility" name="mobility" required class="case-input" />
+            <input
+              type="text"
+              id="mobility"
+              name="mobility"
+              required
+              class="case-input"
+            />
           </div>
           <div class="input-field">
             <label for="gum_colour">Gum Colour:</label>
-            <input type="text" id="gum_colour" name="gum_colour" required class="case-input" />
+            <input
+              type="text"
+              id="gum_colour"
+              name="gum_colour"
+              required
+              class="case-input"
+            />
           </div>
           <div class="input-field">
             <label for="pain_response">Pain Response:</label>
-            <input type="text" id="pain_response" name="pain_response" required class="case-input" />
+            <input
+              type="text"
+              id="pain_response"
+              name="pain_response"
+              required
+              class="case-input"
+            />
           </div>
           <div class="input-field">
             <label for="others">Others:</label>
-            <input type="text" id="others" name="others" placeholder="frequency etc/other details" required class="case-input" />
+            <input
+              type="text"
+              id="others"
+              name="others"
+              placeholder="frequency etc/other details"
+              required
+              class="case-input"
+            />
           </div>
           <div class="login-button-container">
             <button type="submit" class="new-case-button">Submit Case</button>
           </div>
-        </form>        
+        </form>
       </div>
     </div>
 

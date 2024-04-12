@@ -24,13 +24,14 @@ import logging
 from flask_debugtoolbar import DebugToolbarExtension
 from openai import OpenAI, OpenAIError, RateLimitError, BadRequestError
 from requests.exceptions import HTTPError, Timeout, RequestException
-from cryptography.fernet import Fernet
+from cryptography.fernet import Fernet, InvalidToken
 import os
 import time
 from passlib.hash import argon2
 from pdf2image import convert_from_path
 import pytesseract
 from werkzeug.utils import secure_filename
+import re
 
 
 client = OpenAI()
@@ -65,12 +66,24 @@ cipher_suite = Fernet(fernet_key)
 
 def encrypt_data(data):
     """Encrypt the data with Fernet."""
-    return cipher_suite.encrypt(data.encode()).decode()
+    try:
+        return cipher_suite.encrypt(data.encode()).decode()
+    except InvalidToken:
+        app.logger.error(
+            "Failed to decrypt data. Check that the encryption key matches and data integrity is maintained."
+        )
+        return None
 
 
 def decrypt_data(data):
     """Decrypt the data with Fernet."""
-    return cipher_suite.decrypt(data.encode()).decode()
+    try:
+        return cipher_suite.decrypt(data.encode()).decode()
+    except InvalidToken:
+        app.logger.error(
+            "Failed to decrypt data. Check that the encryption key matches and data integrity is maintained."
+        )
+        return None
 
 
 # Define the process_pdf function that handles PDF processing
@@ -80,6 +93,19 @@ def process_pdf(pdf_path):
     for page in pages:
         text += pytesseract.image_to_string(page)
     return text
+
+def extract_url(reference_text):
+    # This regex pattern looks for URLs in plain text or within markdown links [Text](URL)
+    url_pattern = re.compile(r'https?://[^\s]+')
+
+    # Find all instances of the pattern
+    urls = url_pattern.findall(reference_text)
+
+    # Clean up any trailing markdown parenthesis
+    urls = [url.rstrip(')') for url in urls]
+
+    # Return the first URL found, or None if no URL is found
+    return urls[0] if urls else None
 
 
 def process_initial_evaluation(query_id, query_text, attempt=1, max_attempts=3):
@@ -139,7 +165,9 @@ def process_initial_evaluation(query_id, query_text, attempt=1, max_attempts=3):
                 "Reference:"
             )
             treatment_suggestion = treatment_suggestion.strip()
-            reference = reference.strip().replace("[", "").replace("]", "")
+            # Use the extract_url function to get the actual URL
+            reference_url = extract_url(reference)
+            print("Extracted URL:", reference_url)
 
             # Encrypt each part as needed before saving
             new_initial_hypothesis = InitialHypothesis(
@@ -148,7 +176,7 @@ def process_initial_evaluation(query_id, query_text, attempt=1, max_attempts=3):
                 Urgency=encrypt_data(urgency),
                 justification=encrypt_data(justification),
                 TreatmentSuggestion=encrypt_data(treatment_suggestion),
-                Reference=encrypt_data(reference),
+                Reference=encrypt_data(reference_url),
             )
             db.session.add(new_initial_hypothesis)
         db.session.commit()
@@ -189,6 +217,7 @@ def process_query_with_gpt(query_id, query_text, attempt=1, max_attempts=3):
         "Treatment Suggestion: Suggested Treatment. Reference: [link to source]'. "
         f"{query_text} Please provide 1 possible medical condition based on the above symptoms, "
         "with the condition's justification, suggested treatment, and a reference link."
+        "I have also provided the past reports, based on the past report, mention the possibility of the condition. Add this to the end of the condition name."
     )
 
     try:
@@ -224,7 +253,10 @@ def process_query_with_gpt(query_id, query_text, attempt=1, max_attempts=3):
 
             treatment_text, reference_text = parts[1].split("Reference:", 1)
             treatment_text = treatment_text.strip()
-            reference_text = reference_text.strip().replace("[", "").replace("]", "")
+
+            # Use the extract_url function to get the actual URL
+            reference_url = extract_url(reference_text)
+            print("Extracted URL:", reference_url)
 
             # Encrypt each part as needed before saving
             new_condition = MedicalCondition(
@@ -232,7 +264,7 @@ def process_query_with_gpt(query_id, query_text, attempt=1, max_attempts=3):
                 Name=encrypt_data(name_text),
                 justification=encrypt_data(justification_text),
                 TreatmentSuggestion=encrypt_data(treatment_text),
-                Reference=encrypt_data(reference_text),
+                Reference=encrypt_data(reference_url),
             )
             db.session.add(new_condition)
 
@@ -322,13 +354,38 @@ def home_page():
         return redirect(url_for("login_page"))
 
 
+@app.route("/get_patients_by_pawparent")
+def get_patients_by_pawparent():
+    pawparent_id = request.args.get("pawparentID", type=int)
+    if pawparent_id:
+        patients = Patient.query.filter_by(PawparentID=pawparent_id).all()
+        patient_list = [
+            {"PatientID": patient.PatientID, "PatientName": patient.PatientName}
+            for patient in patients
+        ]
+        return jsonify(patient_list)
+    return jsonify([])
+
+
 @app.route("/new_case", methods=["GET", "POST"])
 def new_case():
     if "role" not in session:
         return redirect(url_for("login_page"))
 
     if request.method == "POST" and session["role"] == "assistant":
+        patient_id = request.form.get("patientID")  # Get PatientID from the form
+        if not patient_id:
+            flash("Patient ID is required.", "error")
+            return redirect(url_for("new_case"))
+
+        # Fetch patient details
+        patient = Patient.query.filter_by(PatientID=patient_id).first()
+        if not patient:
+            flash("Invalid patient ID.", "error")
+            return redirect(url_for("new_case"))
+
         # Collect all form data into a single string
+        patient_details = f"Species: {patient.Species}, Age: {patient.Age}, Breed: {patient.Breed}, Gender: {patient.Gender}"
         checklist_items = [
             f"activity:{request.form['activity']}",
             f"breathing:{request.form['breathing']}",
@@ -346,22 +403,24 @@ def new_case():
             f"pain_response:{request.form['pain_response']}",
             f"others:{request.form['others']}",
         ]
-        query_text = ", ".join(checklist_items)
+        query_text = ", ".join(checklist_items) + ", " + patient_details
 
         # Encrypt the query text before storing it
         encrypted_query_text = encrypt_data(query_text)
-        new_query = QueryResult(UserID=session["UserID"], Query=encrypted_query_text)
+        new_query = QueryResult(
+            UserID=session["UserID"],
+            PatientID=patient_id,
+            Query=encrypted_query_text,
+            DateCreated=date.today(),
+        )
         db.session.add(new_query)
         try:
             db.session.commit()
             flash("New case added successfully.", "success")
-
-            # At this point, new_query.QResultID contains the ID of the new QueryResult
-            print(f"New QueryResult ID: {new_query.QResultID}")
-
         except Exception as e:
-            flash("Error in database commit: {}".format(e), "error")
             db.session.rollback()
+            flash(f"Error in database commit: {str(e)}", "error")
+            return redirect(url_for("new_case"))
 
         try:
             # Call the separate function for API interaction
@@ -380,26 +439,22 @@ def new_case():
         if session["role"] == "assistant":
             return render_template("new_case_assistant.html")
         elif session["role"] == "veterinarian":
-            queries = QueryResult.query.order_by(QueryResult.QResultID.desc()).all()
+            # Join QueryResult with Patient to get the patient names
+            queries = (
+                db.session.query(QueryResult, Patient.PatientName)
+                .join(Patient, QueryResult.PatientID == Patient.PatientID)
+                .order_by(QueryResult.QResultID.desc())
+                .all()
+            )
 
-            app.logger.debug("Number of queries found: %d", len(queries))
             decrypted_queries = []
-
-            for q in queries:
-                try:
-                    decrypted_query = decrypt_data(q.Query)
-                    decrypted_queries.append(
-                        {"QResultID": q.QResultID, "Query": decrypted_query}
-                    )
-                    app.logger.debug(f"Query #{q.QResultID} decrypted successfully")
-                    app.logger.debug(f"Query #{decrypted_query} decrypted successfully")
-
-                except Exception as e:
-                    app.logger.error(f"Error decrypting query #{q.QResultID}: {str(e)}")
-                    # Consider whether to append a placeholder or handle individually
-                    decrypted_queries.append(
-                        {"QResultID": q.QResultID, "Query": "Error decrypting data"}
-                    )
+            for query, patient_name in queries:
+                decrypted_query = {
+                    "QResultID": query.QResultID,
+                    "Query": decrypt_data(query.Query),
+                    "PatientName": patient_name,  # Include patient name in the result
+                }
+                decrypted_queries.append(decrypted_query)
 
             return render_template(
                 "new_case_veterinarian.html", queries=decrypted_queries
@@ -419,6 +474,48 @@ def edit_case(query_id):
         return "Query not found", 404
 
     decrypted_query = decrypt_data(query_result.Query)  # Decrypt the query data
+
+    # Fetch the most recent previous report for the patient
+    previous_query_result = (
+        QueryResult.query.filter(
+            QueryResult.PatientID == query_result.PatientID,
+            QueryResult.QResultID != query_id,
+        )
+        .order_by(QueryResult.QResultID.desc())
+        .first()
+    )
+
+    # Initialize an empty summary string
+    summary = ""
+
+    if previous_query_result:
+        # Fetch the Initial Hypotheses and Medical Conditions of the previous query
+        ihypotheses = InitialHypothesis.query.filter_by(
+            QResultID=previous_query_result.QResultID
+        ).all()
+        mconditions = MedicalCondition.query.filter_by(
+            QResultID=previous_query_result.QResultID
+        ).all()
+
+        ih_summary = "; ".join(
+            [
+                f"{decrypt_data(ih.Name)}, due to {decrypt_data(ih.justification)}"
+                for ih in ihypotheses
+            ]
+        )
+        mc_summary = "; ".join(
+            [
+                f"{decrypt_data(mc.Name)}, due to {decrypt_data(mc.justification)}"
+                for mc in mconditions
+            ]
+        )
+
+        # Prepare the full summary
+        summary = (
+            f"Case - {previous_query_result.QResultID}\n"
+            f"Previous Initial Hypothesis: {ih_summary}\n"
+            f"Previous Medical Condition: {mc_summary}"
+        )
 
     if request.method == "POST":
         additional_info = request.form.get("additional_info", "").strip()
@@ -451,6 +548,10 @@ def edit_case(query_id):
             db.session.commit()
             flash("Case updated successfully.", "success")
 
+                    # Here, append the summary of past report
+            if summary:
+                updated_query += f"\nPast Report Summaries:\n{summary}"
+
             # Call the separate function for API interaction
             process_query_with_gpt(query_id, updated_query)
 
@@ -472,6 +573,7 @@ def edit_case(query_id):
             "QResultID": query_result.QResultID,
             "Query": decrypted_query,  # Assuming this is the decrypted data to be shown.
             "UserID": query_result.UserID,
+            "ReportSummaries": summary,  # Include this in the template if needed
         }
         return render_template(
             "edit_case.html", query=query_data, symptom_details=symptom_details
@@ -645,7 +747,6 @@ def delete_user(user_id):
     return redirect(url_for("manage_users"))
 
 
-#######################################################################################################################################
 @app.route("/manage_patients", methods=["GET"])
 def manage_patients():
     if "role" in session and (
@@ -747,9 +848,6 @@ def delete_patient(patient_id):
     else:
         flash("Patient not found.", "error")
     return redirect(url_for("manage_patients"))
-
-
-#######################################################################################################################################
 
 
 @app.route("/manage_pawparents", methods=["GET"])

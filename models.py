@@ -65,10 +65,14 @@ class QueryResult(db.Model):
         "PatientID", db.Integer, db.ForeignKey("Patients.PatientID"), nullable=False
     )
     Query = db.Column("Query", db.Text, nullable=False)
+    DateCreated = db.Column("DateCreated", db.Date, nullable=False)
 
-    def __init__(self, UserID, Query):
+    def __init__(self, UserID, PatientID, Query, DateCreated):
         self.UserID = UserID
+        self.PatientID = PatientID
         self.Query = Query
+        self.DateCreated = DateCreated
+
 
 
 class InitialHypothesis(db.Model):

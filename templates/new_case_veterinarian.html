@@ -30,8 +30,8 @@
                 href="{{ url_for('edit_case', query_id=query.QResultID) }}"
                 class="case-link"
               >
-                Case #{{ query.QResultID }}: {{ query.Query }}
-                <!-- Removed slicing to show full text -->
+                Case #{{ query.QResultID }} - Patient: {{ query.PatientName }} - {{ query.Query }}
+                <!-- Displaying full text of the query and the patient's name -->
               </a>
             </li>
             {% endfor %}
