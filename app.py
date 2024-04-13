@@ -94,15 +94,16 @@ def process_pdf(pdf_path):
         text += pytesseract.image_to_string(page)
     return text
 
+
 def extract_url(reference_text):
     # This regex pattern looks for URLs in plain text or within markdown links [Text](URL)
-    url_pattern = re.compile(r'https?://[^\s]+')
+    url_pattern = re.compile(r"https?://[^\s]+")
 
     # Find all instances of the pattern
     urls = url_pattern.findall(reference_text)
 
     # Clean up any trailing markdown parenthesis
-    urls = [url.rstrip(')') for url in urls]
+    urls = [url.rstrip(")") for url in urls]
 
     # Return the first URL found, or None if no URL is found
     return urls[0] if urls else None
@@ -475,47 +476,41 @@ def edit_case(query_id):
 
     decrypted_query = decrypt_data(query_result.Query)  # Decrypt the query data
 
-    # Fetch the most recent previous report for the patient
-    previous_query_result = (
-        QueryResult.query.filter(
-            QueryResult.PatientID == query_result.PatientID,
-            QueryResult.QResultID != query_id,
-        )
-        .order_by(QueryResult.QResultID.desc())
-        .first()
-    )
+    patient_query_results = QueryResult.query.filter(
+        QueryResult.PatientID == query_result.PatientID,
+        QueryResult.QResultID != query_id  # Exclude current QResultID
+    ).order_by(QueryResult.QResultID.desc()).all()
 
-    # Initialize an empty summary string
-    summary = ""
-
-    if previous_query_result:
-        # Fetch the Initial Hypotheses and Medical Conditions of the previous query
-        ihypotheses = InitialHypothesis.query.filter_by(
-            QResultID=previous_query_result.QResultID
-        ).all()
+    report_summaries = []
+    for qresult in patient_query_results:
         mconditions = MedicalCondition.query.filter_by(
-            QResultID=previous_query_result.QResultID
+            QResultID=qresult.QResultID
         ).all()
 
-        ih_summary = "; ".join(
-            [
-                f"{decrypt_data(ih.Name)}, due to {decrypt_data(ih.justification)}"
-                for ih in ihypotheses
-            ]
-        )
-        mc_summary = "; ".join(
-            [
-                f"{decrypt_data(mc.Name)}, due to {decrypt_data(mc.justification)}"
-                for mc in mconditions
-            ]
+        # Summarize initial hypotheses and medical conditions
+        mc_summaries = []
+
+        for mc in mconditions:
+            mc_name = decrypt_data(mc.Name)
+            mc_justification = decrypt_data(mc.justification)
+
+            mc_summaries.append(f"{mc_name}, due to {mc_justification}")
+
+        # Join the lists into a string
+        mc_summary_str = "; ".join(mc_summaries)  # Use semicolon as separator
+
+        # Decrypt and prepare the full summary
+        summary = (
+            f"Case - {qresult.QResultID}\nDate - {qresult.DateCreated}\n"
+            f"Medical Condition: {mc_summary_str}"
         )
 
-        # Prepare the full summary
-        summary = (
-            f"Case - {previous_query_result.QResultID}\n"
-            f"Previous Initial Hypothesis: {ih_summary}\n"
-            f"Previous Medical Condition: {mc_summary}"
-        )
+        report_summaries.append(summary)
+        # Combine all report summaries into a single string for display or further processing
+        all_reports_summary = "\n".join(report_summaries)
+
+    print("Report Summaries:")
+    print(all_reports_summary)
 
     if request.method == "POST":
         additional_info = request.form.get("additional_info", "").strip()
@@ -548,9 +543,9 @@ def edit_case(query_id):
             db.session.commit()
             flash("Case updated successfully.", "success")
 
-                    # Here, append the summary of past report
+            # Here, append the summary of past report
             if summary:
-                updated_query += f"\nPast Report Summaries:\n{summary}"
+                updated_query += f"\nPast Report Summaries:\n{all_reports_summary}"
 
             # Call the separate function for API interaction
             process_query_with_gpt(query_id, updated_query)
