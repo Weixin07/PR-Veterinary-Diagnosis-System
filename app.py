@@ -49,7 +49,7 @@ app.config["DEBUG_TB_INTERCEPT_REDIRECTS"] = (
 project_dir = "C:/Users/Faithlin Hoe/PR-Veterinary-Diagnosis-System"
 upload_folder = os.path.join(project_dir, "uploads")
 
-# Now set the UPLOAD_FOLDER in your Flask app's config
+# Now set the UPLOAD_FOLDER in the Flask app's config
 app.config["UPLOAD_FOLDER"] = upload_folder
 
 # Ensure the directory exists
@@ -110,7 +110,6 @@ def extract_url(reference_text):
 
 
 def process_initial_evaluation(query_id, query_text, attempt=1, max_attempts=3):
-    # Adjusted prompt to clearly define the expected response format and request only one medical condition
     prompt_for_gpt = (
         "The recipient is a veterinary assistant, do not worry about using professional terms. "
         "Please format your response as follows: 'Condition Name: Condition Name. "
@@ -135,8 +134,7 @@ def process_initial_evaluation(query_id, query_text, attempt=1, max_attempts=3):
             api_response = choice.message.content.strip()
             print("API Response:", api_response)  # Print the generated text
 
-            # Since only one condition is requested, the logic to handle multiple conditions is not needed.
-            # Directly split and process the single response.
+            # Directly split and process the single response
             parts = api_response.split("Urgency Level:")
             if len(parts) < 2:
                 app.logger.error("Incomplete information for condition received.")
@@ -211,7 +209,6 @@ def process_initial_evaluation(query_id, query_text, attempt=1, max_attempts=3):
 
 
 def process_query_with_gpt(query_id, query_text, attempt=1, max_attempts=3):
-    # Adjusted prompt to clearly define the expected response format and request only one medical condition
     prompt_for_gpt = (
         "The recipient is a veterinarian, do not worry about using professional terms. "
         "Please format your response as follows: 'Condition Name: Condition Justification. "
@@ -236,7 +233,6 @@ def process_query_with_gpt(query_id, query_text, attempt=1, max_attempts=3):
             api_response = choice.message.content.strip()
             print("API Response:", api_response)  # Print the generated text
 
-            # Directly process the single response since only one condition is requested.
             parts = api_response.split("Treatment Suggestion:")
             if len(parts) < 2:
                 app.logger.error("Incomplete information for condition received.")
@@ -712,7 +708,6 @@ def add_user():
                 return redirect(url_for("home_page"))
             except Exception as e:
                 db.session.rollback()
-                # handle exception, e.g., duplicate email
         return render_template("add_user.html")
     return redirect(url_for("login_page"))
 
@@ -729,10 +724,8 @@ def delete_user(user_id):
         db.session.delete(user_to_delete)
         try:
             db.session.commit()
-            # You can add a message to the flash storage to indicate success
             flash("User deleted successfully.", "success")
         except Exception as e:
-            # You can add a message to the flash storage to indicate failure
             flash("An error occurred while deleting the user.", "error")
             db.session.rollback()
     else:
