@@ -52,10 +52,15 @@
                 name="report_pdf"
                 accept=".pdf"
                 style="display: none"
+                onchange="updateFileName()"
               />
               <label for="report_pdf" class="file-upload-btn"
                 >Attach Lab Report (PDF)</label
               >
+            </div>
+            <div class="upload-button-container">
+              <span id="file-name"></span>
+              <!-- Span to display file name -->
             </div>
             <div class="login-button-container">
               <button type="submit" class="new-case-button">Update Case</button>
@@ -68,5 +73,13 @@
     <footer class="footer">
       @2024 Pet Recovery Veterinary Diagnostic System - By TP055347 APU FYP
     </footer>
+    <script>
+      function updateFileName() {
+        var input = document.getElementById("report_pdf");
+        var fileNameSpan = document.getElementById("file-name");
+        fileNameSpan.textContent =
+          input.files.length > 0 ? "Uploaded: " + input.files[0].name : "";
+      }
+    </script>
   </body>
 </html>
