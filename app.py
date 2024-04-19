@@ -89,10 +89,14 @@ def decrypt_data(data):
 # Define the process_pdf function that handles PDF processing
 def process_pdf(pdf_path):
     pages = convert_from_path(pdf_path)
-    text = ""
+    text = []
     for page in pages:
-        text += pytesseract.image_to_string(page)
-    return text
+        page_text = pytesseract.image_to_string(page).strip()
+        if page_text:  # Ensure that only non-empty texts are added
+            text.append(page_text)
+    return " ".join(
+        text
+    )  # Joining with spaces to ensure there's a delimiter between page texts
 
 
 def extract_url(reference_text):
@@ -472,10 +476,14 @@ def edit_case(query_id):
 
     decrypted_query = decrypt_data(query_result.Query)  # Decrypt the query data
 
-    patient_query_results = QueryResult.query.filter(
-        QueryResult.PatientID == query_result.PatientID,
-        QueryResult.QResultID != query_id  # Exclude current QResultID
-    ).order_by(QueryResult.QResultID.desc()).all()
+    patient_query_results = (
+        QueryResult.query.filter(
+            QueryResult.PatientID == query_result.PatientID,
+            QueryResult.QResultID != query_id,  # Exclude current QResultID
+        )
+        .order_by(QueryResult.QResultID.desc())
+        .all()
+    )
 
     report_summaries = []
     for qresult in patient_query_results:

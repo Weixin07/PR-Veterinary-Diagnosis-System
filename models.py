@@ -74,7 +74,6 @@ class QueryResult(db.Model):
         self.DateCreated = DateCreated
 
 
-
 class InitialHypothesis(db.Model):
     __tablename__ = "Initial Hypothesis"
     IHypothesisID = db.Column("IHypothesisID", db.Integer, primary_key=True)
