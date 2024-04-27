@@ -66,24 +66,30 @@ cipher_suite = Fernet(fernet_key)
 
 def encrypt_data(data):
     """Encrypt the data with Fernet."""
-    try:
-        return cipher_suite.encrypt(data.encode()).decode()
-    except InvalidToken:
-        app.logger.error(
-            "Failed to decrypt data. Check that the encryption key matches and data integrity is maintained."
-        )
+    if data is None:
         return None
+    else:
+        try:
+            return cipher_suite.encrypt(data.encode()).decode()
+        except InvalidToken:
+            app.logger.error(
+                "Failed to decrypt data. Check that the encryption key matches and data integrity is maintained."
+            )
+            return None
 
 
 def decrypt_data(data):
     """Decrypt the data with Fernet."""
-    try:
-        return cipher_suite.decrypt(data.encode()).decode()
-    except InvalidToken:
-        app.logger.error(
-            "Failed to decrypt data. Check that the encryption key matches and data integrity is maintained."
-        )
+    if data is None:
         return None
+    else:
+        try:
+            return cipher_suite.decrypt(data.encode()).decode()
+        except InvalidToken:
+            app.logger.error(
+                "Failed to decrypt data. Check that the encryption key matches and data integrity is maintained."
+            )
+            return None
 
 
 # Define the process_pdf function that handles PDF processing
